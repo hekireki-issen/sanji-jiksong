@@ -1,0 +1,19 @@
+name: "📝 General Issue"
+description: "자유로운 기타 이슈 템플릿"
+labels: ["general", "other"]
+body:
+  - type: markdown
+    attributes:
+      value: "이 이슈 템플릿은 이슈를 자유롭게 작성할 수 있도록 최소한의 항목만 제공합니다. 필요한 경우 항목들을 무시하거나 추가 정보를 자유롭게 기입해 주세요."
+  - type: textarea
+    attributes:
+      label: "📝 상세 설명"
+      description: "이슈에 대해 자유롭게 설명해 주세요. 아이디어, 제안, 문제점 등 어떤 내용이라도 기입 가능합니다."
+      placeholder: "자유롭게 작성해 주세요."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "📎 참고 자료 (선택 사항)"
+      description: "관련 자료나 링크, 스크린샷 등을 첨부해 주세요. 필수 항목은 아닙니다."
+      placeholder: "참고 자료가 있다면 입력해 주세요." 

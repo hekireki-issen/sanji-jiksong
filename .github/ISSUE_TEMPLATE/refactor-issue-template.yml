@@ -1,0 +1,29 @@
+name: "♻️ Refactoring"
+description: "코드 개선 및 리팩토링 관련 이슈"
+labels: ["refactoring"]
+body:
+  - type: textarea
+    attributes:
+      label: "📄 설명"
+      description: "리팩토링이 필요한 이유와 개선 목표를 상세하게 작성해 주세요."
+      placeholder: "예: 코드 중복 제거, 가독성 개선, 유지보수 용이성 향상 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "🔍 대상 코드 영역"
+      description: "리팩토링 대상이 되는 클래스, 함수, 모듈 등의 구체적인 위치를 작성해 주세요."
+      placeholder: "예: 특정 모듈, 서비스 클래스 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "🛠 변경 계획"
+      description: "예상되는 변경 사항과 작업 계획을 구체적으로 작성해 주세요."
+      placeholder: "예: 함수 분리, 모듈 구조 재정비 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "📎 참고 자료"
+      description: "관련 문서, 참고 링크 또는 스크린샷 등 추가 자료가 있다면 첨부해 주세요."

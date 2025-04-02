@@ -1,0 +1,27 @@
+name: "🐞 Bug Report"
+description: "버그 관련 이슈 보고"
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes:
+      label: "📄 설명"
+      description: "버그 현상, 재현 방법, 기대한 결과 등 상세히 기술해 주세요."
+      placeholder: "예: 사용 중 오류 발생, 특정 상황에서 앱이 종료됨 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "🛠 재현 단계"
+      description: "버그를 재현할 수 있는 단계들을 순서대로 작성해 주세요."
+      placeholder: "예: 1. 로그인 후 2. 버튼 클릭 3. 오류 메시지 확인 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "💡 예상 결과"
+      description: "정상적인 동작 시 기대되는 결과를 작성해 주세요."
+      placeholder: "예: 에러 없이 정상적으로 페이지가 전환되어야 함"
+  - type: textarea
+    attributes:
+      label: "📎 참고 자료"
+      description: "스크린샷, 로그, 또는 관련 문서 등 참고 자료가 있다면 첨부해 주세요."

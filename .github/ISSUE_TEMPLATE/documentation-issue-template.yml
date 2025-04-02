@@ -1,0 +1,22 @@
+name: "📚 Documentation Update"
+description: "문서화 및 가이드라인 업데이트 관련 이슈 보고"
+labels: ["documentation", "docs"]
+body:
+  - type: textarea
+    attributes:
+      label: "📄 설명"
+      description: "업데이트 또는 추가할 문서 내용에 대해 상세하게 작성해 주세요."
+      placeholder: "예: API 문서 개선, 사용 가이드 업데이트 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "📝 수정/추가 내용"
+      description: "수정 또는 추가할 내용을 구체적으로 기술해 주세요."
+      placeholder: "예: 특정 API 설명 추가, 예제 코드 업데이트 등"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "📎 참고 자료"
+      description: "참고할 수 있는 링크나 자료를 첨부해 주세요."
