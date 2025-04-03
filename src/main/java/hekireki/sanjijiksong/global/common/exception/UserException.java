@@ -23,4 +23,16 @@ public class UserException extends RuntimeException{
             super(ErrorCode.USER_NOT_FOUND);
         }
     }
+
+    public static class UserEmailAlreadyExistsException extends UserException {
+        public UserEmailAlreadyExistsException() {
+            super(ErrorCode.USER_EMAIL_ALREADY_EXIST);
+        }
+    }
+
+    public static class UserAlreadyDeactivatedException extends UserException {
+        public UserAlreadyDeactivatedException() {
+            super(ErrorCode.USER_ALREADY_DEACTIVATED);
+        }
+    }
 }
