@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.user.service;
 
+import hekireki.sanjijiksong.domain.user.dto.PasswordResetRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserRegisterRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
 import hekireki.sanjijiksong.domain.user.entity.User;
@@ -35,11 +36,37 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserException.UserNotFoundException::new);
 
-//        if (!user.getId().equals(currentUser.getId())) {
-//            throw new 본인만 탈퇴 가능
-//        }
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new UserException.UserUnauthorizedException();
+        }
 
         user.deactivate(); // 내부에서 이미 탈퇴된 경우 예외 처리
+    }
+
+    public void restoreUser(Long userId, User currentUser) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserException.UserNotFoundException::new);
+
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new UserException.UserUnauthorizedException();
+        }
+
+        user.restore(); // → 내부에서 복구 가능 여부 및 예외 처리까지 수행
+    }
+
+    public void resetPassword(Long userId, PasswordResetRequest request, User currentUser) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserException.UserNotFoundException::new);
+
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new UserException.UserUnauthorizedException(); // 본인 아님
+        }
+
+        if (!user.getActive()) {
+            throw new UserException.UserAlreadyDeactivatedException(); // 탈퇴한 사용자
+        }
+
+        user.updatePassword(request.newPassword()); // setter 없이 처리
     }
 
 }

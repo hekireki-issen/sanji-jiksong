@@ -35,4 +35,22 @@ public class UserException extends RuntimeException{
             super(ErrorCode.USER_ALREADY_DEACTIVATED);
         }
     }
+
+    public static class UserAlreadyRestoredException extends UserException {
+        public UserAlreadyRestoredException() {
+            super(ErrorCode.USER_ALREADY_RESTORED);
+        }
+    }
+
+    public static class UserRestoreExpiredException extends UserException {
+        public UserRestoreExpiredException() {
+            super(ErrorCode.USER_RESTORE_EXPIRED);
+        }
+    }
+
+    public static class UserUnauthorizedException extends UserException {
+        public UserUnauthorizedException() {
+            super(ErrorCode.USER_UNAUTHORIZED);
+        }
+    }
 }
