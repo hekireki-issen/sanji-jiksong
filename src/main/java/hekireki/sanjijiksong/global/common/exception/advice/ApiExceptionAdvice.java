@@ -1,6 +1,7 @@
 package hekireki.sanjijiksong.global.common.exception.advice;
 
 import hekireki.sanjijiksong.global.common.exception.ErrorResponse;
+import hekireki.sanjijiksong.global.common.exception.StoreException;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,4 +21,13 @@ public class ApiExceptionAdvice {
         ErrorResponse response = new ErrorResponse(ex.getErrorCode());
         return new ResponseEntity<>(response, ex.getErrorCode().getStatus());
     }
+
+    //store 관련
+    @ExceptionHandler(StoreException.class)
+    public ResponseEntity<ErrorResponse> handleStoreException(StoreException e) {
+        return ResponseEntity
+                .status(e.getErrorCode().getStatus())
+                .body(new ErrorResponse(e.getErrorCode()));
+    }
+
 }
