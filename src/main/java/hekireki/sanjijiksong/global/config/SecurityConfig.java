@@ -1,5 +1,7 @@
 package hekireki.sanjijiksong.global.config;
 
+import hekireki.sanjijiksong.domain.user.entity.Role;
+import hekireki.sanjijiksong.global.security.jwt.JwtFilter;
 import hekireki.sanjijiksong.global.security.jwt.JwtUtil;
 import hekireki.sanjijiksong.global.security.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -42,9 +44,13 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());//시큐리티의 기본 인증인 HTTP Basic 인증 비활성화
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/login", "/", "/join").permitAll()//해당 url경로는 인증 필요 없음
+//                        .requestMatchers("/admin").hasRole(Role.ADMIN.name())// ADMIN만 접근 가능
+//                .requestMatchers().hasRole(Role.BUYER.name())//Buyer만 접근 가능
+//                .requestMatchers().hasRole(Role.SELLER.name())//Seller만 접근 가능
         );
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));//jwt는 session을 stateless로 관리
+        http.addFilterBefore(new JwtFilter(jwtUtil),LoginFilter.class);
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);//로그인 필터 설정
         return http.build();
     }
