@@ -1,7 +1,7 @@
 package hekireki.sanjijiksong.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hekireki.sanjijiksong.global.security.config.TokenType;
+import hekireki.sanjijiksong.global.security.entity.TokenType;
 import hekireki.sanjijiksong.global.security.dto.LoginRequestDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
