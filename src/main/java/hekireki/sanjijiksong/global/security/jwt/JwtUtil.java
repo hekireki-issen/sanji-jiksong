@@ -43,7 +43,7 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(TokenType category, String email, String role, Long expiredMs){
+    public String createJwt(String category, String email, String role, Long expiredMs){
         return Jwts.builder()
                 .claim("category", category)
                 .claim("email",email)

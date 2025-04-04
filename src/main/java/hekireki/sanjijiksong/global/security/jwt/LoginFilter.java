@@ -2,7 +2,7 @@ package hekireki.sanjijiksong.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hekireki.sanjijiksong.global.security.entity.TokenType;
-import hekireki.sanjijiksong.global.security.dto.LoginRequestDto;
+import hekireki.sanjijiksong.global.security.dto.LoginRequest;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,15 +36,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            LoginRequestDto loginRequest = mapper.readValue(request.getInputStream(), LoginRequestDto.class);
+            LoginRequest loginRequest = mapper.readValue(request.getInputStream(), LoginRequest.class);
 
             //UsernamePasswordAuthenticationFilter의 내장 함수
-            String email = loginRequest.getEmail();
+            String email = loginRequest.email();
             if(!isValidEmail(email)){
                 throw new BadCredentialsException("Invalid email format");
             }
 
-            String password = loginRequest.getPassword();
+            String password = loginRequest.password();
             //Dto 역할
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email,password,null);
             return authenticationManager.authenticate(authToken);//자동으로 검증 수행
@@ -66,10 +66,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority authority = iterator.next();
 
         //SimpleGrantedAuthority("ROLE_USER")
-        String role = authority.getAuthority();
+        String role = authority.getAuthority().replace("ROLE_", ""); // "ADMIN"
 
         //access 토큰
-        String access = jwtUtil.createJwt(TokenType.ACCESS, email, role, JwtUtil.ACCESS_TOKEN_EXPIRE_TIME);
+        String access = jwtUtil.createJwt(TokenType.ACCESS.getValue(), email, role, JwtUtil.ACCESS_TOKEN_EXPIRE_TIME);
         //refresh 토큰
         response.setHeader(TokenType.ACCESS.getValue(),access);
         //xss 공격 대응 : JavaScript에서 쿠키를 읽을 수 없으므로, 악성 스크립트로 refresh token 탈취 어려움
