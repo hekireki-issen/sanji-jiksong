@@ -1,9 +1,12 @@
 package hekireki.sanjijiksong.global.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hekireki.sanjijiksong.global.security.entity.Refresh;
 import hekireki.sanjijiksong.global.security.entity.TokenType;
 import hekireki.sanjijiksong.global.security.dto.LoginRequest;
+import hekireki.sanjijiksong.global.security.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 
@@ -24,10 +28,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager1, JwtUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager1, JwtUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager1;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
     }
 
     //Login seq : 1
@@ -71,8 +77,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //access 토큰
         String access = jwtUtil.createJwt(TokenType.ACCESS.getValue(), email, role, JwtUtil.ACCESS_TOKEN_EXPIRE_TIME);
         //refresh 토큰
+        String refresh = jwtUtil.createJwt(TokenType.REFRESH.getValue(), email, role, JwtUtil.REFRESH_TOKEN_EXPIRE_TIME);
+
+        addRefreshEntity(email,refresh,JwtUtil.REFRESH_TOKEN_EXPIRE_TIME);
+
         response.setHeader(TokenType.ACCESS.getValue(),access);
         //xss 공격 대응 : JavaScript에서 쿠키를 읽을 수 없으므로, 악성 스크립트로 refresh token 탈취 어려움
+        response.addCookie(createCookie(TokenType.REFRESH.getValue(),refresh));
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -81,6 +92,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         //401 : 요청된 리소스에 대한 유효한 인증 자격 증명이 없어 발생하는 오류
         response.setStatus(401);
     }
+
+    private void addRefreshEntity(String email, String refreshToken, Long expiredMs){
+        //만료시간 설정
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        Refresh refreshEntity = Refresh.builder()
+                .email(email)
+                .refreshToken(refreshToken)
+                .expiration(date.toString())
+                .build();
+
+        refreshRepository.save(refreshEntity);
+    }
+
+    private Cookie createCookie(String key, String value){
+        Cookie cookie = new Cookie(key,value);
+        cookie.setMaxAge((int) (JwtUtil. REFRESH_TOKEN_EXPIRE_TIME / 1000));
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
