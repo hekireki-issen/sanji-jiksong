@@ -4,6 +4,7 @@ import hekireki.sanjijiksong.domain.user.entity.Role;
 import hekireki.sanjijiksong.global.security.jwt.JwtFilter;
 import hekireki.sanjijiksong.global.security.jwt.JwtUtil;
 import hekireki.sanjijiksong.global.security.jwt.LoginFilter;
+import hekireki.sanjijiksong.global.security.repository.RefreshRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,10 +22,12 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
     }
 
     @Bean
@@ -47,11 +50,13 @@ public class SecurityConfig {
 //                        .requestMatchers("/admin").hasRole(Role.ADMIN.name())// ADMIN만 접근 가능
 //                .requestMatchers().hasRole(Role.BUYER.name())//Buyer만 접근 가능
 //                .requestMatchers().hasRole(Role.SELLER.name())//Seller만 접근 가능
+                        .requestMatchers("/reissue").permitAll()
+
         );
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));//jwt는 session을 stateless로 관리
         http.addFilterBefore(new JwtFilter(jwtUtil),LoginFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);//로그인 필터 설정
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);//로그인 필터 설정
         return http.build();
     }
 }

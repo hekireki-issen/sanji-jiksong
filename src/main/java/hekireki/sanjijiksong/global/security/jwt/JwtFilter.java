@@ -35,7 +35,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 토큰이 없다면 다음 필터인 로그인 필터로 넘김
         if (accessToken == null) {
-            System.out.println("login");
             filterChain.doFilter(request, response);
             return;
         }
@@ -72,7 +71,6 @@ public class JwtFilter extends OncePerRequestFilter {
         // username, role 값을 획득
         String email = jwtUtil.getEmail(accessToken);
         Role role = Role.valueOf(jwtUtil.getRole(accessToken));
-
         User user = User.builder()
                 .email(email)
                 .role(role).build();
