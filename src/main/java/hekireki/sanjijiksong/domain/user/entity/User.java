@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Entity
-@Table(name = "`user`")
+@Table(name = "`USERS`")
 public class User extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -37,7 +37,7 @@ public class User extends BaseTimeEntity {
 	private Boolean active;
 
 
-	//탈퇴
+	// 탈퇴
 	public void deactivate() {
 		if (!this.active) {
 			throw new UserException.UserAlreadyDeactivatedException();
@@ -50,7 +50,7 @@ public class User extends BaseTimeEntity {
 		return this.getModifiedAt() != null && this.getModifiedAt().isAfter(LocalDateTime.now().minusDays(30));
 	}
 
-	//복구
+	// 복구
 	public void restore() {
 		if (Boolean.TRUE.equals(this.active)) {
 			throw new UserException.UserAlreadyRestoredException(); // 이미 복구된 사용자
