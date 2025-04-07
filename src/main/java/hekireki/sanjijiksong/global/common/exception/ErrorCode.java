@@ -23,7 +23,15 @@ public enum ErrorCode {
 
 
     //Order
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다.");
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+
+    //Security
+    NO_REFRESH_TOKEN_COOKIE(HttpStatus.BAD_REQUEST, "리프레시 토큰 쿠키가 존재하지 않습니다."),
+    MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 누락되었습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 리프레시 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 만료되었습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "DB에 해당 리프레시 토큰이 존재하지 않습니다.");
+
 
     private final HttpStatus status;
     private final String message;

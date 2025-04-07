@@ -1,6 +1,7 @@
 package hekireki.sanjijiksong.global.common.exception.advice;
 
 import hekireki.sanjijiksong.global.common.exception.ErrorResponse;
+import hekireki.sanjijiksong.global.common.exception.SecurityException;
 import hekireki.sanjijiksong.global.common.exception.StoreException;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,13 @@ public class ApiExceptionAdvice {
     //store 관련
     @ExceptionHandler(StoreException.class)
     public ResponseEntity<ErrorResponse> handleStoreException(StoreException e) {
+        return ResponseEntity
+                .status(e.getErrorCode().getStatus())
+                .body(new ErrorResponse(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ErrorResponse> handleSecurityException(SecurityException e){
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(new ErrorResponse(e.getErrorCode()));
