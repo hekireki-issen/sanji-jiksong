@@ -32,6 +32,10 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "리프레시 토큰이 만료되었습니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "DB에 해당 리프레시 토큰이 존재하지 않습니다.");
 
+    // KAMIS API 호출 에러
+    KAMIS_API_NO_DATA(HttpStatus.BAD_REQUEST, "KAMIS API에서 데이터가 없습니다."),
+    KAMIS_API_WRONG_PARAMETER(HttpStatus.BAD_REQUEST, "KAMIS API에서 잘못된 파라미터입니다."),
+    KAMIS_API_UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "KAMIS API 인증에 실패했습니다.");
 
     private final HttpStatus status;
     private final String message;
