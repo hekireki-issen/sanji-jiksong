@@ -1,6 +1,7 @@
 package hekireki.sanjijiksong.global.config;
 
 import hekireki.sanjijiksong.domain.user.entity.Role;
+import hekireki.sanjijiksong.global.security.jwt.CustomLogoutFilter;
 import hekireki.sanjijiksong.global.security.jwt.JwtFilter;
 import hekireki.sanjijiksong.global.security.jwt.JwtUtil;
 import hekireki.sanjijiksong.global.security.jwt.LoginFilter;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -58,6 +60,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));//jwt는 session을 stateless로 관리
         http.addFilterBefore(new JwtFilter(jwtUtil),LoginFilter.class);
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);//로그인 필터 설정
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         return http.build();
     }
 }
