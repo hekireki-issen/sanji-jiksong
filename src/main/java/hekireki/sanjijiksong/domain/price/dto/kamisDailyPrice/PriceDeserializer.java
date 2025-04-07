@@ -1,9 +1,8 @@
-package hekireki.sanjijiksong.domain.price.dto;
+package hekireki.sanjijiksong.domain.price.dto.kamisDailyPrice;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;

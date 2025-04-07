@@ -2,7 +2,7 @@ package hekireki.sanjijiksong.domain.price.service;
 
 
 import hekireki.sanjijiksong.domain.price.Repository.PriceDailyRepository;
-import hekireki.sanjijiksong.domain.price.dto.KamisDailyResponse;
+import hekireki.sanjijiksong.domain.price.dto.kamisDailyPrice.KamisDailyResponse;
 import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,9 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,10 +63,10 @@ public class PriceService {
 
     @Transactional
     public void getAllPricesForPastYear(){
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.of(2025,3,2);
         //LocalDate oneMonthAgo = today.minusMonths(1);
         //2025-03-03
-        LocalDate ago = LocalDate.of(2025, 3, 3);
+        LocalDate ago = LocalDate.of(2025, 1, 3);
         for (LocalDate date = ago; !date.isAfter(today); date = date.plusDays(1)) {
             String regDay = date.toString(); // "yyyy-MM-dd" 형식
             // 6개의 카테고리 코드에 대해 반복
