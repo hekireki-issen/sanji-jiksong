@@ -43,10 +43,10 @@ public class PriceDaily {
     @Column(length = 10)
     private LocalDate snapshotDate; // 필요시 파싱 (예: "04/04" -> 실제 연도 포함 날짜)
 
-    private String price;
+    private Integer price;
 
 
-    public void updatePrice(String dpr1) {
+    public void updatePrice(Integer dpr1) {
         this.price = dpr1;
     }
 }

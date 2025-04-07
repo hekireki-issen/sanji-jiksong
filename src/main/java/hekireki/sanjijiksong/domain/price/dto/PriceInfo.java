@@ -12,10 +12,10 @@ public class PriceInfo {
     private String itemCode;
     private String itemName;
     private String unit;
-    private String currentPrice;
-    private String oneDayAgoPrice;
-    private String oneWeekAgoPrice;
-    private String oneMonthAgoPrice;
+    private Integer currentPrice;
+    private Integer oneDayAgoPrice;
+    private Integer oneWeekAgoPrice;
+    private Integer oneMonthAgoPrice;
     private String startDate;
     private String endDate;
 }

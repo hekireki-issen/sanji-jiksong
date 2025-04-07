@@ -52,13 +52,14 @@ public class ProductPriceService {
 
             // Info: 조회 종료일(end)을 기준으로 가격 정보 조회
             PriceDaily currentRecord = getLatestRecord(groupList, end);
-            String currentPrice = currentRecord != null ? currentRecord.getPrice() : "0";
-            PriceDaily oneDayRecord = getLatestRecord(groupList, end.minusDays(1));
-            String oneDayAgoPrice = oneDayRecord != null ? oneDayRecord.getPrice() : "0";
-            PriceDaily oneWeekRecord = getLatestRecord(groupList, end.minusWeeks(1));
-            String oneWeekAgoPrice = oneWeekRecord != null ? oneWeekRecord.getPrice() : "0";
-            PriceDaily oneMonthRecord = getLatestRecord(groupList, end.minusMonths(1));
-            String oneMonthAgoPrice = oneMonthRecord != null ? oneMonthRecord.getPrice() : "0";
+            Integer currentPrice = currentRecord != null ? currentRecord.getPrice() : null;
+            PriceDaily oneDayAgoRecord = getLatestRecord(groupList, end.minusDays(1));
+            Integer oneDayAgoPrice = oneDayAgoRecord != null ? oneDayAgoRecord.getPrice() : null;
+            PriceDaily oneWeekAgoRecord = getLatestRecord(groupList, end.minusWeeks(1));
+            Integer oneWeekAgoPrice = oneWeekAgoRecord != null ? oneWeekAgoRecord.getPrice() : null;
+            PriceDaily oneMonthAgoRecord = getLatestRecord(groupList, end.minusMonths(1));
+            Integer oneMonthAgoPrice = oneMonthAgoRecord != null ? oneMonthAgoRecord.getPrice() : null;
+
 
             // 상품 기본 정보: currentRecord가 있으면 사용
             String itemName = currentRecord != null ? currentRecord.getItemName() : "";
@@ -80,7 +81,7 @@ public class ProductPriceService {
             List<PriceHistory> history = groupList.stream()
                     .map(pd -> PriceHistory.builder()
                             .date(pd.getSnapshotDate().toString())
-                            .price(Integer.parseInt(pd.getPrice()))
+                            .price(pd.getPrice())
                             .build())
                     .collect(Collectors.toList());
 

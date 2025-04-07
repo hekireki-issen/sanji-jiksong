@@ -2,6 +2,7 @@ package hekireki.sanjijiksong.domain.price.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KamisDailyResponse {
     private List<Condition> condition;
+
+    @JsonDeserialize(using = PriceDeserializer.class)
     private Data data;
 
 
@@ -81,7 +84,15 @@ public class KamisDailyResponse {
     }
 
     public List<PriceDaily> from() {
+        if(data==null || data.getItem() == null) {
+            throw new RuntimeException("잘못된 응답 형식입니다.");
+        }
+
         return data.getItem().stream()
+                .filter(item -> {
+                    String dpr1 = safeNormalize(item.getDpr1());
+                    return dpr1 != null && !dpr1.isEmpty() && !dpr1.equals("0");
+                })
                 .map(item -> {
                     String dpr1 = safeNormalize(item.getDpr1());
 
@@ -96,7 +107,7 @@ public class KamisDailyResponse {
                             .snapshotDate(LocalDate.parse(condition.get(0).regday)) // TODO: 실제 연도 포함 날짜로 변경
                             .categoryCode(condition.get(0).categoryCode)
                             .classCode(condition.get(0).productClsCode)
-                            .price(dpr1)
+                            .price(Integer.parseInt(dpr1))
                             .build();
                 })
                 .toList();

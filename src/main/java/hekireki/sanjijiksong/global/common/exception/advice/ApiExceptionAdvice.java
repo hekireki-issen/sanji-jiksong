@@ -1,6 +1,7 @@
 package hekireki.sanjijiksong.global.common.exception.advice;
 
 import hekireki.sanjijiksong.global.common.exception.ErrorResponse;
+import hekireki.sanjijiksong.global.common.exception.KamisException;
 import hekireki.sanjijiksong.global.common.exception.StoreException;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,4 +34,10 @@ public class ApiExceptionAdvice {
                 .body(new ErrorResponse(e.getErrorCode()));
     }
 
+    @ExceptionHandler(KamisException.class)
+    public ResponseEntity<ErrorResponse> handleKamisException(KamisException e) {
+        return ResponseEntity
+                .status(e.getErrorCode().getStatus())
+                .body(new ErrorResponse(e.getErrorCode()));
+    }
 }
