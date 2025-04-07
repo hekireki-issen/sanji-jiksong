@@ -51,6 +51,7 @@ public class SecurityConfig {
 //                .requestMatchers().hasRole(Role.BUYER.name())//Buyer만 접근 가능
 //                .requestMatchers().hasRole(Role.SELLER.name())//Seller만 접근 가능
                         .requestMatchers("/reissue").permitAll()
+                        .anyRequest().authenticated()
 
         );
         http.sessionManagement((session) -> session
