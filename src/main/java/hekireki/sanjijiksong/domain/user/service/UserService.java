@@ -7,14 +7,19 @@ import hekireki.sanjijiksong.domain.user.entity.User;
 import hekireki.sanjijiksong.domain.user.repository.UserRepository;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
+    // 회원가입
     public UserResponse register(UserRegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new UserException.UserEmailAlreadyExistsException();
@@ -22,7 +27,7 @@ public class UserService {
 
         User user = User.builder()
                 .email(request.email())
-                .password(request.password()) // 평문 비밀번호 (암호화 X)
+                .password(passwordEncoder.encode(request.password())) // 암호화
                 .nickname(request.nickname())
                 .address(request.address())
                 .role(request.role())
@@ -32,6 +37,7 @@ public class UserService {
         return UserResponse.from(userRepository.save(user));
     }
 
+    // 회원탈퇴
     public void deleteUser(Long userId, User currentUser) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserException.UserNotFoundException::new);
@@ -43,6 +49,7 @@ public class UserService {
         user.deactivate(); // 내부에서 이미 탈퇴된 경우 예외 처리
     }
 
+    // 회원복구
     public void restoreUser(Long userId, User currentUser) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserException.UserNotFoundException::new);
@@ -54,6 +61,7 @@ public class UserService {
         user.restore(); // → 내부에서 복구 가능 여부 및 예외 처리까지 수행
     }
 
+    // 비밀번호 재설정
     public void resetPassword(Long userId, PasswordResetRequest request, User currentUser) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserException.UserNotFoundException::new);
@@ -67,6 +75,27 @@ public class UserService {
         }
 
         user.updatePassword(request.newPassword()); // setter 없이 처리
+    }
+
+    //admin method
+
+    // 모든 유저 조회
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserResponse::from)
+                .toList();
+    }
+
+    // 탈퇴 처리
+    public void deactivateUserByAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserException.UserNotFoundException::new);
+
+        if (!user.getActive()) {
+            throw new UserException.UserAlreadyDeactivatedException();
+        }
+
+        user.deactivate();
     }
 
 }
