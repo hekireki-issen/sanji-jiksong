@@ -11,7 +11,7 @@ spring:
 
   sql:
     init:
-      mode: ${SQL_INIT_MODE:never}
+      mode: always
 
   jpa:
     hibernate:
@@ -20,7 +20,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-    defer-datasource-initialization: ${JPA_DDI:false}
+    defer-datasource-initialization: true
 
 
   config:

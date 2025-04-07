@@ -3,6 +3,11 @@ package hekireki.sanjijiksong.domain.cart.entity;
 import hekireki.sanjijiksong.domain.item.entity.Item;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
+
+@Getter
+@Entity
+@Table(name = "cart_item")
 
 public class CartItem extends BaseTimeEntity {
 

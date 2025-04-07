@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.item.entity;
 
-public enum itemStatus {
+
+public enum ItemStatus {
  ONSALE,NONSALE, SOLDOUT
 }
