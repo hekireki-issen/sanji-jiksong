@@ -5,7 +5,7 @@ import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "`order`")
+@Table(name = "`ORDER`")
 public class Order extends BaseTimeEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Entity
-@Table(name = "`user`")
+@Table(name = "`USERS`")
 public class User extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
