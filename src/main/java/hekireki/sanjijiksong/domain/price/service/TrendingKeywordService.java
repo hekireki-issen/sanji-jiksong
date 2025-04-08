@@ -4,7 +4,7 @@ import hekireki.sanjijiksong.domain.price.Repository.PriceDailyRepository;
 import hekireki.sanjijiksong.domain.price.Repository.TrendingKeywordRepository;
 import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
 import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
-import hekireki.sanjijiksong.domain.price.entity.TrendingKeywordPrice;
+import hekireki.sanjijiksong.domain.price.dto.TrendingKeywordPrice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

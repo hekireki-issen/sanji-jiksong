@@ -1,4 +1,4 @@
-package hekireki.sanjijiksong.domain.price.entity;
+package hekireki.sanjijiksong.domain.price.dto;
 
 import java.time.LocalDate;
 

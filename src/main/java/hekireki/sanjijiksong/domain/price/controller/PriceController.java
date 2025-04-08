@@ -2,8 +2,7 @@ package hekireki.sanjijiksong.domain.price.controller;
 
 
 import hekireki.sanjijiksong.domain.price.dto.ProductPriceResponse;
-import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
-import hekireki.sanjijiksong.domain.price.entity.TrendingKeywordPrice;
+import hekireki.sanjijiksong.domain.price.dto.TrendingKeywordPrice;
 import hekireki.sanjijiksong.domain.price.service.PriceService;
 import hekireki.sanjijiksong.domain.price.service.ProductPriceService;
 import hekireki.sanjijiksong.domain.price.service.TrendingKeywordScheduler;
