@@ -1,4 +1,4 @@
-package hekireki.sanjijiksong.domain.price.dto;
+package hekireki.sanjijiksong.domain.openapi.dto;
 
 
 import lombok.Builder;

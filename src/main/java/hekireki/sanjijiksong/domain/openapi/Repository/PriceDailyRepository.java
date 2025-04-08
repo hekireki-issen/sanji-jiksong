@@ -1,6 +1,6 @@
-package hekireki.sanjijiksong.domain.price.Repository;
+package hekireki.sanjijiksong.domain.openapi.Repository;
 
-import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
+import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

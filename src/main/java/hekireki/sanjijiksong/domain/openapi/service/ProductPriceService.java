@@ -1,10 +1,10 @@
-package hekireki.sanjijiksong.domain.price.service;
+package hekireki.sanjijiksong.domain.openapi.service;
 
-import hekireki.sanjijiksong.domain.price.Repository.PriceDailyRepository;
-import hekireki.sanjijiksong.domain.price.dto.PriceHistory;
-import hekireki.sanjijiksong.domain.price.dto.PriceInfo;
-import hekireki.sanjijiksong.domain.price.dto.ProductPriceResponse;
-import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
+import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
+import hekireki.sanjijiksong.domain.openapi.dto.PriceHistory;
+import hekireki.sanjijiksong.domain.openapi.dto.PriceInfo;
+import hekireki.sanjijiksong.domain.openapi.dto.ProductPriceResponse;
+import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
