@@ -1,7 +1,13 @@
 spring:
   application:
     name: sanji-jiksong
+  jwt:
+    secret: ksf92jf12jf23jdfh4skdlf2398rjskfjweofjr9203sldf9230jsdf023r
 
+  h2:
+    console:
+      enabled: true  # H2 Console을 사용할지 여부 (H2 Console은 H2 Database를 UI로 제공해주는 기능)
+      path: /h2-console  # H2 Console의 Path
 
   datasource:
     url: ${DB_URL:jdbc:h2:mem:test}
@@ -25,3 +31,18 @@ spring:
 
   config:
     import: optional:file:.env[.properties]
+
+h2:
+  console:
+    enabled: false
+
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_BUCKET}
