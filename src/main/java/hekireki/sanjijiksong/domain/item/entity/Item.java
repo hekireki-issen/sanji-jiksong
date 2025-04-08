@@ -12,7 +12,6 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,9 +43,6 @@ public class Item extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Boolean active;
-
-    @Column(nullable = false)
-    private ItemStatus itemStatus;
 
     // 피드백 후 수정예정
     private String category;
