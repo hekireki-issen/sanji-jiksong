@@ -2,6 +2,9 @@ package hekireki.sanjijiksong.global.security.jwt;
 
 import hekireki.sanjijiksong.domain.user.entity.Role;
 import hekireki.sanjijiksong.domain.user.entity.User;
+import hekireki.sanjijiksong.domain.user.repository.UserRepository;
+import hekireki.sanjijiksong.global.common.exception.ErrorCode;
+import hekireki.sanjijiksong.global.common.exception.UserException;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import hekireki.sanjijiksong.global.security.entity.TokenType;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -21,9 +24,10 @@ import java.io.PrintWriter;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-
-    public JwtFilter(JwtUtil jwtUtil) {
+    private final UserRepository userRepository;
+    public JwtFilter(JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     //Auth seq : 1
@@ -70,10 +74,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // username, role 값을 획득
         String email = jwtUtil.getEmail(accessToken);
-        Role role = Role.valueOf(jwtUtil.getRole(accessToken));
-        User user = User.builder()
-                .email(email)
-                .role(role).build();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
 
         //Role을 붙이는 이유
