@@ -1,5 +1,5 @@
 package hekireki.sanjijiksong.domain.store.controller;
-import hekireki.sanjijiksong.domain.store.service.S3Service;
+//import hekireki.sanjijiksong.domain.store.service.S3Service;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;
-    private final S3Service s3Service;
+
 
     //가게 등록용
     @PostMapping
