@@ -1,5 +1,5 @@
 package hekireki.sanjijiksong.domain.store.controller;
-//import hekireki.sanjijiksong.domain.store.service.S3Service;
+import hekireki.sanjijiksong.domain.store.service.S3Service;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,50 +21,50 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class StoreController {
     private final StoreService storeService;
-
+    private final S3Service s3Service;
 
     //가게 등록용
-    @PostMapping
-    public ResponseEntity<StoreResponse> createStore(@RequestBody StoreCreateRequest request,
-                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
-        System.out.println("로그인한 유저 ID = " + userId);  // 디버깅 로그
-
-        StoreResponse response = storeService.create(request, userId);
-        return ResponseEntity.ok(response);
-    }
-
-//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<StoreResponse> createStore(
-//            @RequestPart("store") StoreCreateRequest request,
-//            @RequestPart("image") MultipartFile image,
-//            @AuthenticationPrincipal CustomUserDetails userDetails) throws IOException {
-//
+//    @PostMapping
+//    public ResponseEntity<StoreResponse> createStore(@RequestBody StoreCreateRequest request,
+//                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
 //        Long userId = userDetails.getUser().getId();
+//        System.out.println("로그인한 유저 ID = " + userId);  // 디버깅 로그
 //
-//        String imageUrl = s3Service.uploadImage(image);
-//        StoreCreateRequest updatedRequest = new StoreCreateRequest(
-//                request.name(),
-//                request.address(),
-//                request.description(),
-//                imageUrl
-//        );
-//
-//        StoreResponse response = storeService.create(updatedRequest, userId);
+//        StoreResponse response = storeService.create(request, userId);
 //        return ResponseEntity.ok(response);
 //    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StoreResponse> createStore(
+            @RequestPart("store") StoreCreateRequest request,
+            @RequestPart("image") MultipartFile image,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws IOException {
+
+        Long userId = userDetails.getUser().getId();
+
+        String imageUrl = s3Service.uploadImage(image);
+        StoreCreateRequest updatedRequest = new StoreCreateRequest(
+                request.name(),
+                request.address(),
+                request.description(),
+                imageUrl
+        );
+
+        StoreResponse response = storeService.create(updatedRequest, userId);
+        return ResponseEntity.ok(response);
+    }
 
 
     //가게 조회용
     @GetMapping("/{storeId}")
-    public ResponseEntity<StoreResponse> getStoreById(@PathVariable Long storeId) {
+    public ResponseEntity<StoreResponse> getStoreById(@PathVariable("storeId") Long storeId) {
         StoreResponse response = storeService.getById(storeId);
         return ResponseEntity.ok(response);
     }
 
 
     @PatchMapping("/{storeId}/deactivate")
-    public ResponseEntity<Void> deactivateStore(@PathVariable Long storeId,
+    public ResponseEntity<Void> deactivateStore(@PathVariable("storeId") Long storeId,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         storeService.deactivate(storeId, userId);
@@ -73,7 +73,7 @@ public class StoreController {
 
     //가게 수정용
     @PatchMapping("/{storeId}")
-    public ResponseEntity<StoreResponse> updateStore(@PathVariable Long storeId,
+    public ResponseEntity<StoreResponse> updateStore(@PathVariable("storeId") Long storeId,
                                                      @RequestBody StoreUpdateRequest request,
                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
