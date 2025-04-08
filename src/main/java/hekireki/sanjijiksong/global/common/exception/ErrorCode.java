@@ -21,6 +21,9 @@ public enum ErrorCode {
     STORE_ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "이미 등록된 가게가 존재합니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 가게입니다."),
     UNAUTHORIZED_STORE_OWNER(HttpStatus.FORBIDDEN, "해당 가게에 대한 소유권이 없습니다."),
+    STORE_FORBIDDEN(HttpStatus.FORBIDDEN, "해당 가게에 대한 권한이 없습니다."),
+    STORE_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 비활성화된 가게입니다."),
+
 
     //Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),

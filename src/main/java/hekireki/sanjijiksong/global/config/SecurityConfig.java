@@ -9,6 +9,7 @@ import hekireki.sanjijiksong.global.security.jwt.LoginFilter;
 import hekireki.sanjijiksong.global.security.repository.RefreshRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -69,6 +70,9 @@ public class SecurityConfig {
                         ).permitAll() //해당 url경로는 인증 필요 없음
                         .requestMatchers("/api/v1/admin").hasRole(Role.ADMIN.name())// ADMIN만 접근 가능
 //                .requestMatchers().hasRole(Role.BUYER.name())//Buyer만 접근 가능
+                        .requestMatchers(HttpMethod.GET, "/api/v1/stores/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/stores/**").hasRole("SELLER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/stores/**").hasRole("SELLER")
 //                .requestMatchers().hasRole(Role.SELLER.name())//Seller만 접근 가능
                         .anyRequest().authenticated()
 
