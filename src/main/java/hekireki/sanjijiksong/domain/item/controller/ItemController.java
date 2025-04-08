@@ -47,4 +47,15 @@ public class ItemController {
         ItemResponse itemListResponse = itemService.getItemDetail(storeId, itemId);
         return ResponseEntity.ok(itemListResponse);
     }
+
+    @PatchMapping("{storeId}/items/{itemId}")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<ItemResponse> updateProduct(@PathVariable Long storeId,
+                                                      @PathVariable Long itemId,
+                                                      @RequestBody ItemUpdateRequest itemUpdateRequest,
+                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        ItemResponse itemListResponse = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(),itemUpdateRequest);
+        return ResponseEntity.ok(itemListResponse);
+    }
 }
