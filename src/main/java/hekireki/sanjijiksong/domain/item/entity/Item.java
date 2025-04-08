@@ -3,11 +3,19 @@ package hekireki.sanjijiksong.domain.item.entity;
 import hekireki.sanjijiksong.domain.store.entity.Store;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Getter;
 
 
 @Getter
 @Entity
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +45,8 @@ public class Item extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean active;
 
+    @Column(nullable = false)
+    private ItemStatus itemStatus;
 
     // 피드백 후 수정예정
     private String category;

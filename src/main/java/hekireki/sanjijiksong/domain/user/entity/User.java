@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.user.entity;
 
+import hekireki.sanjijiksong.domain.store.entity.Store;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import jakarta.persistence.*;
@@ -37,6 +38,9 @@ public class User extends BaseTimeEntity {
 
 	private Boolean active;
 
+	@OneToOne
+	@JoinColumn(name = "store_id")
+	private Store store;
 
 	// 탈퇴
 	public void deactivate() {
