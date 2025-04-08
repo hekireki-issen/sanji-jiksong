@@ -20,4 +20,6 @@ public interface PriceDailyRepository extends JpaRepository<PriceDaily, Long> {
             String categoryCode, String itemCode, LocalDate startDate, LocalDate endDate);
 
     Optional<PriceDaily> findTopByItemCodeAndCategoryCodeAndSnapshotDateLessThanEqualOrderBySnapshotDateDesc(String itemCode, String categoryCode, LocalDate snapshotDate);
+
+    PriceDaily findTopByItemNameContainingOrderBySnapshotDateDesc(String keyword);
 }
