@@ -50,12 +50,22 @@ public class ItemController {
 
     @PatchMapping("{storeId}/items/{itemId}")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ItemResponse> updateProduct(@PathVariable Long storeId,
-                                                      @PathVariable Long itemId,
-                                                      @RequestBody ItemUpdateRequest itemUpdateRequest,
-                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails
+    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long storeId,
+                                                   @PathVariable Long itemId,
+                                                   @RequestBody ItemUpdateRequest itemUpdateRequest,
+                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
         ItemResponse itemListResponse = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(),itemUpdateRequest);
         return ResponseEntity.ok(itemListResponse);
+    }
+
+    @PatchMapping("{storeId}/items/{itemId}/deactivate")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> deactivateItem(@PathVariable Long storeId,
+                                                       @PathVariable Long itemId,
+                                                       @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        itemService.deactivateItem(storeId, itemId, customUserDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

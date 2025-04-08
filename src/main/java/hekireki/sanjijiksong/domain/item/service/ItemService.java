@@ -89,4 +89,18 @@ public class ItemService {
         return ItemResponse.from(item);
     }
 
+    @Transactional
+    public void deactivateItem(Long storeId, Long itemId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Store store = storeRepository.findByUserId(user.getId());
+        if(!store.getId().equals(storeId)){
+            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
+        }
+
+        Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
+                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        item.deactivate();
+    }
 }
