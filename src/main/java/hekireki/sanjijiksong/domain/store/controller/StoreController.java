@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/stores")
@@ -36,7 +35,6 @@ public class StoreController {
 //    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> createStore(
             @RequestPart("store") StoreCreateRequest request,
             @RequestPart("image") MultipartFile image,
@@ -64,17 +62,8 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    //가게 전체 조회용
-    @GetMapping
-    public ResponseEntity<List<StoreResponse>> getAllStores() {
-        List<StoreResponse> responses = storeService.getAllActiveStores();
-        return ResponseEntity.ok(responses);
-    }
 
-
-    //비활성화용
     @PatchMapping("/{storeId}/deactivate")
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> deactivateStore(@PathVariable("storeId") Long storeId,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
@@ -84,7 +73,6 @@ public class StoreController {
 
     //가게 수정용
     @PatchMapping("/{storeId}")
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> updateStore(@PathVariable("storeId") Long storeId,
                                                      @RequestBody StoreUpdateRequest request,
                                                      @AuthenticationPrincipal CustomUserDetails userDetails) {

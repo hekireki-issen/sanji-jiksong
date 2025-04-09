@@ -71,6 +71,13 @@ public class StoreService {
     }
 
 
+    public List<StoreResponse> getAllActiveStores() {
+        return storeRepository.findAllByActiveTrue()
+                .stream()
+                .map(StoreResponse::of)
+                .toList();
+    }
+
     @Transactional
     public StoreResponse update(Long storeId, Long userId, StoreUpdateRequest request) {
         Store store = storeRepository.findById(storeId)
