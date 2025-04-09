@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StoreService {
@@ -92,6 +94,12 @@ public class StoreService {
         return StoreResponse.of(store);
     }
 
+    public List<StoreResponse> getAllActiveStores() {
+        return storeRepository.findAllByActiveTrue()
+                .stream()
+                .map(StoreResponse::of)
+                .toList();
+    }
 
 
 }
