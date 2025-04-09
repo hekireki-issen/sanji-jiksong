@@ -1,9 +1,9 @@
-package hekireki.sanjijiksong.domain.price.dto.kamisDailyPrice;
+package hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
+import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
 
 import java.time.LocalDate;
 import java.util.List;

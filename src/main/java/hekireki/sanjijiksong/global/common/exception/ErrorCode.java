@@ -27,6 +27,9 @@ public enum ErrorCode {
 
     //Order
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+    ORDER_NOT_CANCELABLE(HttpStatus.BAD_REQUEST, "취소할 수 없는 주문 상태입니다."),
+    ORDER_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 항목이 존재하지 않습니다."),
+    ORDER_NOT_UPDATABLE(HttpStatus.BAD_REQUEST, "현재 상태에서는 주문을 수정할 수 없습니다."),
 
     //Security
     NO_REFRESH_TOKEN_COOKIE(HttpStatus.BAD_REQUEST, "리프레시 토큰 쿠키가 존재하지 않습니다."),
@@ -38,7 +41,11 @@ public enum ErrorCode {
     // KAMIS API 호출 에러
     KAMIS_API_NO_DATA(HttpStatus.BAD_REQUEST, "KAMIS API에서 데이터가 없습니다."),
     KAMIS_API_WRONG_PARAMETER(HttpStatus.BAD_REQUEST, "KAMIS API에서 잘못된 파라미터입니다."),
-    KAMIS_API_UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "KAMIS API 인증에 실패했습니다.");
+    KAMIS_API_UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "KAMIS API 인증에 실패했습니다."),
+
+    //Item
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다"),
+    ITEM_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 비활성화된 상품입니다.");
 
     private final HttpStatus status;
     private final String message;

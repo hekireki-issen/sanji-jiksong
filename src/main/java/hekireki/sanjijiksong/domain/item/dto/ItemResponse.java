@@ -13,12 +13,13 @@ public record ItemResponse(
         String image,
         int stock,
         String description,
+        Boolean active,
         ItemStatus itemStatus,
         //Todo 수정필요
         String category
 )
 {
-    public static ItemResponse of(Item item) {
+    public static ItemResponse from(Item item) {
         return new ItemResponse(
                 item.getId(),
                 item.getStore().getId(),
@@ -27,6 +28,7 @@ public record ItemResponse(
                 item.getImage(),
                 item.getStock(),
                 item.getDescription(),
+                item.getActive(),
                 item.getItemStatus(),
                 item.getCategory()
         );
