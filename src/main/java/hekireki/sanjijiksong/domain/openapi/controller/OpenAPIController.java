@@ -64,7 +64,7 @@ public class OpenAPIController {
 
     @GetMapping("/naver/crawling")
     public ResponseEntity<?> getCrawler(){
-        openApiScheduler.fetchKamisData();
+        openApiScheduler.fetchNaverTrendingKeywords();
         return ResponseEntity.ok("Crawling completed successfully");
     }
 

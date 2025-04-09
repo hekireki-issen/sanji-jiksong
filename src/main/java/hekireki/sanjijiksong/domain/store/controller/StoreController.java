@@ -65,13 +65,6 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
-    //가게 전체 조회용
-    @GetMapping
-    public ResponseEntity<List<StoreResponse>> getAllStores() {
-        List<StoreResponse> responses = storeService.getAllActiveStores();
-        return ResponseEntity.ok(responses);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<StoreResponse>> searchStores(
             @RequestParam("keyword") String keyword
