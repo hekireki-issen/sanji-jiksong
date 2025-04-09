@@ -29,17 +29,22 @@ public class StoreController {
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> createStore(
             @RequestPart("store") StoreCreateRequest request,
-            @RequestPart("image") MultipartFile image,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @AuthenticationPrincipal CustomUserDetails userDetails) throws IOException {
 
         Long userId = userDetails.getUser().getId();
 
-        String imageUrl = s3Service.uploadImage(image);
+        // 이미지를 안 넣는 가게도 있을 것 같음.
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadImage(image);
+        }
+
         StoreCreateRequest updatedRequest = new StoreCreateRequest(
                 request.name(),
                 request.address(),
                 request.description(),
-                imageUrl
+                imageUrl != null ? imageUrl : ""
         );
 
         StoreResponse response = storeService.create(updatedRequest, userId);
@@ -67,10 +72,17 @@ public class StoreController {
         return ResponseEntity.ok(responses);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<StoreResponse>> searchStores(
+            @RequestParam("keyword") String keyword
+    ) {
+        List<StoreResponse> results = storeService.searchByKeyword(keyword);
+        return ResponseEntity.ok(results);
+    }
+
 
     //비활성화용
     @PatchMapping("/{storeId}/deactivate")
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> deactivateStore(@PathVariable("storeId") Long storeId,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
@@ -78,8 +90,7 @@ public class StoreController {
         return ResponseEntity.noContent().build();
     }
 
-    //가게 수정용
-
+   //가게 수정용
     @PatchMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> updateStore(
@@ -107,3 +118,4 @@ public class StoreController {
     }
 
 }
+
