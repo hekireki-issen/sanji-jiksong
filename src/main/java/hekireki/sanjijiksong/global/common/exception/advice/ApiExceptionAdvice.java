@@ -1,10 +1,7 @@
 package hekireki.sanjijiksong.global.common.exception.advice;
 
-import hekireki.sanjijiksong.global.common.exception.ErrorResponse;
+import hekireki.sanjijiksong.global.common.exception.*;
 import hekireki.sanjijiksong.global.common.exception.SecurityException;
-import hekireki.sanjijiksong.global.common.exception.KamisException;
-import hekireki.sanjijiksong.global.common.exception.StoreException;
-import hekireki.sanjijiksong.global.common.exception.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,13 @@ public class ApiExceptionAdvice {
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(new ErrorResponse(e.getErrorCode()));
+    }
+
+    //order
+    @ExceptionHandler(OrderException.class)
+    public ResponseEntity<ErrorResponse> handleUserException(OrderException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode());
+        return new ResponseEntity<>(response, ex.getErrorCode().getStatus());
     }
 
     @ExceptionHandler(SecurityException.class)

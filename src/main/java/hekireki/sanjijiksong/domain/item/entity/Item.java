@@ -7,23 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Getter;
 
-
-@Getter
-@Entity
-@Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Getter
+@Entity
 public class Item extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ItemStatus itemStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
@@ -45,7 +38,7 @@ public class Item extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean active;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
     // 피드백 후 수정예정
