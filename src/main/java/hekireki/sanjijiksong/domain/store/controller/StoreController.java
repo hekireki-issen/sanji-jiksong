@@ -26,6 +26,7 @@ public class StoreController {
 
     //가게 등록용
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> createStore(
             @RequestPart("store") StoreCreateRequest request,
             @RequestPart("image") MultipartFile image,
@@ -59,8 +60,17 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    //가게 전체 조회용
+    @GetMapping
+    public ResponseEntity<List<StoreResponse>> getAllStores() {
+        List<StoreResponse> responses = storeService.getAllActiveStores();
+        return ResponseEntity.ok(responses);
+    }
 
+
+    //비활성화용
     @PatchMapping("/{storeId}/deactivate")
+    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> deactivateStore(@PathVariable("storeId") Long storeId,
                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();

@@ -4,6 +4,7 @@ import hekireki.sanjijiksong.domain.item.dto.ItemCreateRequest;
 import hekireki.sanjijiksong.domain.item.dto.ItemResponse;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
 import hekireki.sanjijiksong.domain.item.entity.Item;
+import hekireki.sanjijiksong.domain.item.entity.ItemStatus;
 import hekireki.sanjijiksong.domain.item.repository.ItemRepository;
 import hekireki.sanjijiksong.domain.store.entity.Store;
 import hekireki.sanjijiksong.domain.store.repository.StoreRepository;
@@ -102,5 +103,21 @@ public class ItemService {
         Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
                 .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
         item.deactivate();
+    }
+
+    public List<ItemResponse> itemSearch(String keyword) {
+        List<Item> items = itemRepository.findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
+
+        return items.stream()
+                .map(ItemResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public Object categorySearch(String keyword) {
+        List<Item> items = itemRepository.findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
+
+        return items.stream()
+                .map(ItemResponse::from)
+                .collect(Collectors.toList());
     }
 }

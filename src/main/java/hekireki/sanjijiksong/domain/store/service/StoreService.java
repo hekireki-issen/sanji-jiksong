@@ -101,6 +101,12 @@ public class StoreService {
         return StoreResponse.of(store);
     }
 
+    public List<StoreResponse> getAllActiveStores() {
+        return storeRepository.findAllByActiveTrue()
+                .stream()
+                .map(StoreResponse::of)
+                .toList();
+    }
 
 
 }
