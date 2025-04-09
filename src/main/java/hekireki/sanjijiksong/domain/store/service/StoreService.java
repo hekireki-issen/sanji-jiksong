@@ -21,6 +21,7 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
 
+    //생성
     @Transactional
     public StoreResponse create(StoreCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
@@ -38,6 +39,8 @@ public class StoreService {
                 .image(request.image())
                 .active(true)
                 .build();
+
+        user.setStore(store);
         Store saved = storeRepository.save(store);
 
         return new StoreResponse(
@@ -50,6 +53,7 @@ public class StoreService {
         );
     }
 
+    //가게 찾기
     public StoreResponse getById(Long storeId) {
         Store store = storeRepository.findById(storeId)
                 .filter(Store::getActive)
@@ -58,6 +62,7 @@ public class StoreService {
         return StoreResponse.of(store);
     }
 
+    //비활성화
     @Transactional
     public void deactivate(Long storeId, Long userId) {
         Store store = storeRepository.findById(storeId)
@@ -70,7 +75,7 @@ public class StoreService {
         store.deactivate(); //이미 비활성화 되어 있으면 예외 처리
     }
 
-
+    //가게 조회
     public List<StoreResponse> getAllActiveStores() {
         return storeRepository.findAllByActiveTrue()
                 .stream()
@@ -78,6 +83,7 @@ public class StoreService {
                 .toList();
     }
 
+    //가게 수정
     @Transactional
     public StoreResponse update(Long storeId, Long userId, StoreUpdateRequest request) {
         Store store = storeRepository.findById(storeId)
@@ -101,12 +107,12 @@ public class StoreService {
         return StoreResponse.of(store);
     }
 
-    public List<StoreResponse> getAllActiveStores() {
-        return storeRepository.findAllByActiveTrue()
-                .stream()
+    //keyword 조회
+    public List<StoreResponse> searchByKeyword(String keyword) {
+        List<Store> matchedStores = storeRepository.findByNameContainingAndActiveTrue(keyword);
+        return matchedStores.stream()
                 .map(StoreResponse::of)
                 .toList();
     }
-
 
 }

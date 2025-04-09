@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store,Long> {
     boolean existsByUser(User user);
-    boolean existsByUserId(Long userId);
     List<Store> findAllByActiveTrue();
-
+    List<Store> findByNameContainingAndActiveTrue(String keyword);
     Store findByUserId(Long id);
 }
