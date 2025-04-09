@@ -2,9 +2,11 @@ package hekireki.sanjijiksong.domain.openapi.controller;
 
 
 import hekireki.sanjijiksong.domain.openapi.dto.ProductPriceResponse;
-import hekireki.sanjijiksong.domain.openapi.service.CrawlerService;
+import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
 import hekireki.sanjijiksong.domain.openapi.service.PriceService;
 import hekireki.sanjijiksong.domain.openapi.service.ProductPriceService;
+import hekireki.sanjijiksong.domain.openapi.service.TrendingKeywordScheduler;
+import hekireki.sanjijiksong.domain.openapi.service.TrendingKeywordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/openapi")
+@RequestMapping("/api/v1/openapi")
 public class OpenAPIController {
     private final PriceService priceService;
     private final ProductPriceService productPriceService;
-    private final CrawlerService crawlerService;
+    private final TrendingKeywordScheduler trendingKeywordScheduler;
+    private final TrendingKeywordService trendingKeywordService;
 
 
     // 가격 정보를 가져오는 API 엔드포인트
@@ -32,13 +36,13 @@ public class OpenAPIController {
         return ResponseEntity.ok("Price data fetched successfully");
     }
 
-    @GetMapping("/api/v1/test/getAllPrice")
+    @GetMapping("/test/getAllPrice")
     public ResponseEntity<?> getAllPrice() {
         priceService.getAllPricesForPastYear();
         return ResponseEntity.ok("All price data fetched successfully");
     }
 
-    @GetMapping("/api/v1/getPrices")
+    @GetMapping("/getPrices")
     public ResponseEntity<?> getPrices(
             @RequestParam("item_code") String itemCode,
             @RequestParam("category_code") String categoryCode,
@@ -56,9 +60,15 @@ public class OpenAPIController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/v1/crawler")
+    @GetMapping("/crawler")
     public ResponseEntity<?> getCrawler(){
-        crawlerService.crawling();
-        return ResponseEntity.ok("Crawler data fetched successfully");
+        trendingKeywordScheduler.collectTrendingKeywords();
+        return ResponseEntity.ok("Crawling completed successfully");
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<?> getTrendingKeywords() {
+        Map<String, TrendingKeywordPrice> priceInfoForTrendingKeywords = trendingKeywordService.getLatestPriceInfoForTodayTrendingKeywords();
+        return ResponseEntity.ok(priceInfoForTrendingKeywords);
     }
 }
