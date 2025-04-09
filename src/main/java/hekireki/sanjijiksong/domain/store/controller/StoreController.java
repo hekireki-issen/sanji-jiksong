@@ -51,6 +51,12 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    //가게 전체 조회용
+    @GetMapping
+    public ResponseEntity<List<StoreResponse>> getAllStores() {
+        List<StoreResponse> responses = storeService.getAllActiveStores();
+        return ResponseEntity.ok(responses);
+    }
 
     //가게 조회용
     @GetMapping("/{storeId}")
@@ -84,8 +90,7 @@ public class StoreController {
         return ResponseEntity.noContent().build();
     }
 
-
-    //가게 수정용
+   //가게 수정용
     @PatchMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<StoreResponse> updateStore(

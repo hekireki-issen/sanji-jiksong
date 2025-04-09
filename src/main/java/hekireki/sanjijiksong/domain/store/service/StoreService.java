@@ -82,8 +82,8 @@ public class StoreService {
                 .map(StoreResponse::of)
                 .toList();
     }
-
-    //가게 수정
+  
+  //가게 
     @Transactional
     public StoreResponse update(Long storeId, Long userId, StoreUpdateRequest request) {
         Store store = storeRepository.findById(storeId)

@@ -34,9 +34,9 @@ public class ApiExceptionAdvice {
 
     //order
     @ExceptionHandler(OrderException.class)
-    public ResponseEntity<ErrorResponse> handleUserException(OrderException ex) {
-        ErrorResponse response = new ErrorResponse(ex.getErrorCode());
-        return new ResponseEntity<>(response, ex.getErrorCode().getStatus());
+    public ResponseEntity<ErrorResponse> handleOrderException(OrderException e) {
+        ErrorResponse response = new ErrorResponse(e.getErrorCode());
+        return new ResponseEntity<>(response, e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler(SecurityException.class)
@@ -51,5 +51,11 @@ public class ApiExceptionAdvice {
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(new ErrorResponse(e.getErrorCode()));
+    }
+
+    @ExceptionHandler(ItemException.class)
+    public ResponseEntity<ErrorResponse> handleItemException(ItemException e) {
+        ErrorResponse response = new ErrorResponse(e.getErrorCode());
+        return new ResponseEntity<>(response, e.getErrorCode().getStatus());
     }
 }
