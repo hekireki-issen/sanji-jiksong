@@ -1,4 +1,4 @@
-package hekireki.sanjijiksong.domain.price.dto.kamisDailyPrice;
+package hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
