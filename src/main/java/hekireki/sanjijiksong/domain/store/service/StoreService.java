@@ -13,6 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StoreService {
@@ -68,6 +70,13 @@ public class StoreService {
         store.deactivate(); //이미 비활성화 되어 있으면 예외 처리
     }
 
+
+    public List<StoreResponse> getAllActiveStores() {
+        return storeRepository.findAllByActiveTrue()
+                .stream()
+                .map(StoreResponse::of)
+                .toList();
+    }
 
     @Transactional
     public StoreResponse update(Long storeId, Long userId, StoreUpdateRequest request) {

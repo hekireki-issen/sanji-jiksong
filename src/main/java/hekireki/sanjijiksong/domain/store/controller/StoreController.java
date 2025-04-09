@@ -1,5 +1,5 @@
 package hekireki.sanjijiksong.domain.store.controller;
-import hekireki.sanjijiksong.domain.store.service.S3Service;
+import hekireki.sanjijiksong.global.common.s3.S3Service;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/stores")
@@ -24,16 +25,6 @@ public class StoreController {
     private final S3Service s3Service;
 
     //가게 등록용
-//    @PostMapping
-//    public ResponseEntity<StoreResponse> createStore(@RequestBody StoreCreateRequest request,
-//                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        Long userId = userDetails.getUser().getId();
-//        System.out.println("로그인한 유저 ID = " + userId);  // 디버깅 로그
-//
-//        StoreResponse response = storeService.create(request, userId);
-//        return ResponseEntity.ok(response);
-//    }
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<StoreResponse> createStore(
             @RequestPart("store") StoreCreateRequest request,
@@ -54,6 +45,12 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 
+    //가게 전체 조회용
+    @GetMapping
+    public ResponseEntity<List<StoreResponse>> getAllStores() {
+        List<StoreResponse> responses = storeService.getAllActiveStores();
+        return ResponseEntity.ok(responses);
+    }
 
     //가게 조회용
     @GetMapping("/{storeId}")
@@ -72,12 +69,30 @@ public class StoreController {
     }
 
     //가게 수정용
-    @PatchMapping("/{storeId}")
-    public ResponseEntity<StoreResponse> updateStore(@PathVariable("storeId") Long storeId,
-                                                     @RequestBody StoreUpdateRequest request,
-                                                     @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    @PatchMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<StoreResponse> updateStore(
+            @PathVariable("storeId") Long storeId,
+            @RequestPart("store") StoreUpdateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) throws IOException {
         Long userId = userDetails.getUser().getId();
-        StoreResponse response = storeService.update(storeId, userId, request);
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadImage(image);
+        }
+
+        StoreUpdateRequest updatedRequest = new StoreUpdateRequest(
+                request.name(),
+                request.address(),
+                request.description(),
+                imageUrl != null ? imageUrl : request.image()
+        );
+
+        StoreResponse response = storeService.update(storeId, userId, updatedRequest);
         return ResponseEntity.ok(response);
     }
 

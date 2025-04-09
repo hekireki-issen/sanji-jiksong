@@ -67,12 +67,12 @@ public class Item extends BaseTimeEntity {
         if (dto.description() != null && !this.description.equals(dto.description())) {
             this.description = dto.description();
         }
-        if (dto.active() != null && !this.active.equals(dto.active())) {
-            this.active = dto.active();
-        }
-        if (dto.itemStatus() != null && !this.itemStatus.equals(dto.itemStatus())) {
-            this.itemStatus = dto.itemStatus();
-        }
+//        if (dto.active() != null && !this.active.equals(dto.active())) {
+//            this.active = dto.active();
+//        }
+//        if (dto.itemStatus() != null && !this.itemStatus.equals(dto.itemStatus())) {
+//            this.itemStatus = dto.itemStatus();
+//        }
     }
 
     public void deactivate() {
