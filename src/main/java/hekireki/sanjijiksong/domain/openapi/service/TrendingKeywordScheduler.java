@@ -1,6 +1,6 @@
-package hekireki.sanjijiksong.domain.price.service;
+package hekireki.sanjijiksong.domain.openapi.service;
 
-import hekireki.sanjijiksong.domain.price.Repository.TrendingKeywordRepository;
+import hekireki.sanjijiksong.domain.openapi.Repository.TrendingKeywordRepository;
 import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword; // 엔티티 클래스 임포트 (필요에 따라 package 수정)
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

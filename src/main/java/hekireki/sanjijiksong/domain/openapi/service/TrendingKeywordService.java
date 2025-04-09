@@ -1,10 +1,10 @@
-package hekireki.sanjijiksong.domain.price.service;
+package hekireki.sanjijiksong.domain.openapi.service;
 
-import hekireki.sanjijiksong.domain.price.Repository.PriceDailyRepository;
-import hekireki.sanjijiksong.domain.price.Repository.TrendingKeywordRepository;
-import hekireki.sanjijiksong.domain.price.entity.PriceDaily;
+import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
+import hekireki.sanjijiksong.domain.openapi.Repository.TrendingKeywordRepository;
+import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
+import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
 import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
-import hekireki.sanjijiksong.domain.price.dto.TrendingKeywordPrice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

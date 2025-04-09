@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "/reissue",
                                 "/h2-console/**",
                                 "/api/v1/register",
-                                "/api/openapi/**"
+                                "/api/v1/openapi/**"
                         ).permitAll() //해당 url경로는 인증 필요 없음
                         .requestMatchers("/api/v1/admin").hasRole(Role.ADMIN.name())// ADMIN만 접근 가능
                         .requestMatchers("/api/openapi/**").permitAll()

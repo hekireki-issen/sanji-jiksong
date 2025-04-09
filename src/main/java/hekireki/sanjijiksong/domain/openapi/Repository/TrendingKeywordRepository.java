@@ -1,4 +1,4 @@
-package hekireki.sanjijiksong.domain.price.Repository;
+package hekireki.sanjijiksong.domain.openapi.Repository;
 
 import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
 import org.springframework.data.jpa.repository.JpaRepository;
