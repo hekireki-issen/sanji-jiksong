@@ -1,5 +1,7 @@
 package hekireki.sanjijiksong.domain.user.service;
 
+import hekireki.sanjijiksong.domain.cart.entity.Cart;
+import hekireki.sanjijiksong.domain.cart.repository.CartRepository;
 import hekireki.sanjijiksong.domain.user.dto.PasswordResetRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserRegisterRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
@@ -17,6 +19,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -34,7 +37,12 @@ public class UserService {
                 .active(true)
                 .build();
 
-        return UserResponse.from(userRepository.save(user));
+        userRepository.save(user);
+
+        Cart cart = new Cart(user);
+        cartRepository.save(cart);
+
+        return UserResponse.from(user);
     }
 
     // 회원탈퇴
