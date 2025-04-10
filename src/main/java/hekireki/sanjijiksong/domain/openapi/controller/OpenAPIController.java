@@ -2,7 +2,7 @@ package hekireki.sanjijiksong.domain.openapi.controller;
 
 
 import hekireki.sanjijiksong.domain.openapi.dto.ProductPriceResponse;
-import hekireki.sanjijiksong.domain.openapi.service.CrawlerService;
+//import hekireki.sanjijiksong.domain.openapi.service.CrawlerService;
 import hekireki.sanjijiksong.domain.openapi.service.PriceService;
 import hekireki.sanjijiksong.domain.openapi.service.ProductPriceService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import java.util.List;
 public class OpenAPIController {
     private final PriceService priceService;
     private final ProductPriceService productPriceService;
-    private final CrawlerService crawlerService;
+    //private final CrawlerService crawlerService;
 
 
     // 가격 정보를 가져오는 API 엔드포인트
@@ -56,9 +56,9 @@ public class OpenAPIController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/v1/crawler")
-    public ResponseEntity<?> getCrawler(){
-        crawlerService.crawling();
-        return ResponseEntity.ok("Crawler data fetched successfully");
-    }
+    //@GetMapping("/v1/crawler")
+    //public ResponseEntity<?> getCrawler(){
+    //    crawlerService.crawling();
+    //    return ResponseEntity.ok("Crawler data fetched successfully");
+    // }
 }

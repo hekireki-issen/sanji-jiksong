@@ -36,7 +36,9 @@ public class CartService {
                         cartItem.getItem().getName(),
                         cartItem.getItem().getPrice(),
                         cartItem.getItem().getImage(),
-                        cartItem.getQuantity()
+                        cartItem.getQuantity(),
+                        cartItem.getTotalPrice(),               // 추가
+                        cartItem.getItem().getItemStatus().name()
                 ))
                 .collect(Collectors.toList());
 

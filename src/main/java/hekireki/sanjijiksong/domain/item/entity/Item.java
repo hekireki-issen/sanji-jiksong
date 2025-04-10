@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item extends BaseTimeEntity {
