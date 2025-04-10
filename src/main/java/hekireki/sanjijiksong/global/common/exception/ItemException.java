@@ -18,4 +18,16 @@ public class ItemException extends RuntimeException {
             super(ErrorCode.ITEM_NOT_FOUND);
         }
     }
+
+    public static class ItemAlreadyDeactivatedException extends ItemException {
+        public ItemAlreadyDeactivatedException() {
+            super(ErrorCode.ITEM_ALREADY_DEACTIVATED);
+        }
+    }
+
+    public static class ItemStockNotEnoughException extends ItemException {
+        public ItemStockNotEnoughException() {
+            super(ErrorCode.ITEM_STOCK_NOT_ENOUGH);
+        }
+    }
 }
