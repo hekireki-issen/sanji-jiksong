@@ -35,6 +35,12 @@ public class OrderService {
                 Item item = itemRepository.findById(itemReq.itemId())
                         .orElseThrow(ItemException.ItemNotFoundException::new);
 
+                if (item.getStock() < itemReq.count()) {
+                    throw new ItemException.ItemStockNotEnoughException();
+                }
+
+                item.decreaseStock(itemReq.count());
+
                 OrderList orderList = new OrderList(order, item, item.getStore(), itemReq.count());
                 order.addOrderItem(orderList);
             }
@@ -49,7 +55,11 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderException.OrderNotFoundException::new);
 
-        order.cancel(); // 도메인에서 상태 확인 및 예외 처리
+        order.cancel();
+
+        for (OrderList orderList : order.getOrderLists()) {
+            orderList.getItem().addStock(orderList.getCount());
+        }
     }
 
     // 주문 수정
@@ -68,8 +78,13 @@ public class OrderService {
                     .findFirst()
                     .orElseThrow(OrderException.OrderItemNotFoundException::new);
 
+            Item item = target.getItem();
+
             int oldPrice = target.getCountPrice();
             int oldCount = target.getCount();
+
+            item.addStock(oldCount);
+            item.decreaseStock(update.count());
 
             target.updateCount(update.count());
 
