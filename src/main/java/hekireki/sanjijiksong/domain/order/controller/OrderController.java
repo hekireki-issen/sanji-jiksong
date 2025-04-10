@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.order.controller;
 
+import hekireki.sanjijiksong.domain.order.api.OrderApi;
 import hekireki.sanjijiksong.domain.order.dto.OrderListUpdateRequest;
 import hekireki.sanjijiksong.domain.order.dto.OrderRequest;
 import hekireki.sanjijiksong.domain.order.dto.OrderResponse;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('BUYER')")
-public class OrderController {
+public class OrderController implements OrderApi {
 
     private final OrderService orderService;
 
