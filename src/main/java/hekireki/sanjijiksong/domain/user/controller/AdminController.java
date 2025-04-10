@@ -11,20 +11,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class AdminController {
 
     private final UserService userService;
 
     // 모든 유저 조회
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     // 유저 탈퇴 처리(active 비활성화)
-    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/users/{id}/deactivate")
     public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
         userService.deactivateUserByAdmin(id);
