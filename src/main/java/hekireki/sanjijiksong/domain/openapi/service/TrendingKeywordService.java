@@ -85,14 +85,22 @@ public class TrendingKeywordService {
             wait.until(dr -> ((org.openqa.selenium.JavascriptExecutor) dr)
                     .executeScript("return document.readyState").equals("complete"));
 
-            // 상위 카테고리 "식품" 선택
-            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[1]/span")));
-            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[1]/ul/li[7]/a"))).click();
-            log.info("식품 카테고리 선택 완료.");
+            // 상위 카테고리 "식품" 선택 (드롭다운 컨테이너 클릭 후 옵션 선택)
+            WebElement categoryButton = driver.findElement(By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[1]/span"));
+            categoryButton.click();
 
+            WebElement foodOption = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[1]/ul/li[7]/a")
+            ));
+            foodOption.click();
+            log.info("식품 카테고리 선택 완료.");
+            Thread.sleep(2000);
 
             // 2분류 카테고리 옵션 인덱스와 이름 매핑 (li[1]=축산물, li[2]=수산물, li[3]=농산물)
-            Map<Integer, String> subCategories = Map.of(1, "축산물", 2, "수산물", 3, "농산물");
+            Map<Integer, String> subCategories = new HashMap<>();
+            subCategories.put(1, "축산물");
+            subCategories.put(2, "수산물");
+            subCategories.put(3, "농산물");
 
             // 각 2분류 옵션별로 데이터 추출 및 DB 저장
             for (Map.Entry<Integer, String> entry : subCategories.entrySet()) {
@@ -100,38 +108,61 @@ public class TrendingKeywordService {
                 String subCategoryName = entry.getValue();
 
                 // 2분류 카테고리 버튼(컨테이너) 클릭하여 드롭다운 열기
-                wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[2]/span")));
+                WebElement secondCategoryButton = wait.until(ExpectedConditions.elementToBeClickable(
+                        By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[2]/span")
+                ));
+                secondCategoryButton.click();
+                log.info("2분류 카테고리 버튼 클릭 완료.");
                 Thread.sleep(2000); // 드롭다운 로딩 대기
 
                 // 해당 옵션(li[index]) 선택
-                wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[2]/ul/li[" + liIndex + "]"))).click();
+                String optionXPath = "//*[@id='content']/div[2]/div/div[1]/div/div/div[1]/div/div[2]/ul/li[" + liIndex + "]";
+                WebElement subCategoryOption = wait.until(ExpectedConditions.elementToBeClickable(
+                        By.xpath(optionXPath)
+                ));
+                subCategoryOption.click();
                 log.info("{} 카테고리 옵션 선택 완료.", subCategoryName);
 
                 // 조회 버튼 클릭
-                wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='content']/div[2]/div/div[1]/div/a"))).click();
+                WebElement searchButton = wait.until(ExpectedConditions.elementToBeClickable(
+                        By.xpath("//*[@id='content']/div[2]/div/div[1]/div/a")
+                ));
+                searchButton.click();
                 log.info("조회 버튼 클릭 완료 for {}.", subCategoryName);
-                Thread.sleep(2000);
+                Thread.sleep(2000); // 조회 결과 로딩 대기
 
                 // 인기 검색어 추출 (상위 10개)
                 List<WebElement> keywordElements = driver.findElements(By.cssSelector("li a.link_text"));
                 List<String> popularKeywords = new ArrayList<>();
-                for (int i = 0; i < Math.min(10, keywordElements.size()); i++) {
-                    popularKeywords.add(keywordElements.get(i).getText().trim().replaceAll("^\\d+\\s*", ""));
+                int count = 0;
+                for (WebElement element : keywordElements) {
+                    if (count >= 10) break;
+                    String text = element.getText().trim();
+                    // 예: "1한우" → 앞의 숫자와 공백 제거
+                    String keyword = text.replaceAll("^\\d+\\s*", "");
+                    popularKeywords.add(keyword);
+                    count++;
                 }
                 log.info("[{}] 인기 검색어: {}", subCategoryName, popularKeywords);
 
+                // 크롤링된 인기 검색어 데이터를 TrendingKeyword 엔티티로 변환하여 DB에 저장
                 for (int i = 0; i < popularKeywords.size(); i++) {
-                    trendingKeywordRepository.save(TrendingKeyword.builder()
+                    String keyword = popularKeywords.get(i);
+                    int rank = i + 1; // 순위는 1부터
+                    TrendingKeyword trendingKeyword = TrendingKeyword.builder()
                             .category(subCategoryName)
-                            .keyword(popularKeywords.get(i))
-                            .rank(i + 1)
+                            .keyword(keyword)
+                            .rank(rank)
                             .createDate(LocalDate.now())
-                            .build());
+                            .build();
+                    trendingKeywordRepository.save(trendingKeyword);
                 }
                 log.info("[{}] 인기 검색어 저장 완료.", subCategoryName);
+
+                // 다음 옵션 처리를 위한 대기
                 Thread.sleep(2000);
             }
+
         } catch (Exception e) {
             log.error("크롤링 중 오류 발생", e);
         } finally {
