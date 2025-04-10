@@ -24,7 +24,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
-public class PriceService {
+public class KamisPriceImportService {
     @Value("${KAMIS_CERT_ID}")
     private String certId;
     @Value("${KAMIS_CERT_KEY}")
@@ -32,13 +32,11 @@ public class PriceService {
 
     private static final String SEARCH_PRICE_URL = "http://www.kamis.co.kr/service/price/xml.do?action=dailyPriceByCategoryList";
 
-
     private final PriceDailyRepository priceDailyRepository;
     private final RestTemplate restTemplate;
 
     @Transactional
-    public void getPrice(String categoryCode, String regDay) {
-
+    public void getPrices(String categoryCode, String regDay) {
         URI targetUri = UriComponentsBuilder
                 .fromUriString(SEARCH_PRICE_URL)
                 .queryParam("p_cert_id", certId)
@@ -56,18 +54,13 @@ public class PriceService {
         List<PriceDaily> priceList = response.from();
         log.info("Price List: {}", priceList.toString());
 
-
         // DB에 저장
         priceDailyRepository.saveAll(priceList);
     }
 
     @Transactional
-    public void getAllPricesForPastYear(){
-        LocalDate today = LocalDate.of(2025,3,2);
-        //LocalDate oneMonthAgo = today.minusMonths(1);
-        //2025-03-03
-        LocalDate ago = LocalDate.of(2025, 1, 3);
-        for (LocalDate date = ago; !date.isAfter(today); date = date.plusDays(1)) {
+    public void getAllPricesBetween(LocalDate start, LocalDate end) {
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
             String regDay = date.toString(); // "yyyy-MM-dd" 형식
             // 6개의 카테고리 코드에 대해 반복
             for (String categoryCode : new String[]{"100", "200", "300", "400", "500", "600"}) {
@@ -76,6 +69,7 @@ public class PriceService {
                 } catch (Exception e) {
                     // 각 API 호출 시 발생한 예외 로깅 후 다음 카테고리 호출 진행
                     // 예: logger.warn("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
+                    log.warn("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
                 }
             }
         }
@@ -83,7 +77,7 @@ public class PriceService {
 
     @Transactional
     public void saveDailyPrice(String categoryCode, String regDay){
-        getPrice(categoryCode, regDay);
+        getPrices(categoryCode, regDay);
     }
 
     private HttpEntity<String> getHttpEntity() {
@@ -92,4 +86,5 @@ public class PriceService {
         httpHeaders.set("Content-Type", "application/json");
         return new HttpEntity<>(httpHeaders);
     }
+
 }

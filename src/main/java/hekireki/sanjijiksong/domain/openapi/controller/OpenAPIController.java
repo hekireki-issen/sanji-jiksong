@@ -1,10 +1,11 @@
 package hekireki.sanjijiksong.domain.openapi.controller;
 
-
 import hekireki.sanjijiksong.domain.openapi.dto.ProductPriceResponse;
-//import hekireki.sanjijiksong.domain.openapi.service.CrawlerService;
-import hekireki.sanjijiksong.domain.openapi.service.PriceService;
+import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
+import hekireki.sanjijiksong.domain.openapi.service.KamisPriceImportService;
 import hekireki.sanjijiksong.domain.openapi.service.ProductPriceService;
+import hekireki.sanjijiksong.domain.openapi.service.OpenApiScheduler;
+import hekireki.sanjijiksong.domain.openapi.service.TrendingKeywordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,31 +15,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/openapi")
+@RequestMapping("/api/v1/openapi")
 public class OpenAPIController {
-    private final PriceService priceService;
+    private final KamisPriceImportService kamisPriceImportService;
     private final ProductPriceService productPriceService;
-    //private final CrawlerService crawlerService;
+    private final OpenApiScheduler openApiScheduler;
+    private final TrendingKeywordService trendingKeywordService;
 
 
-    // 가격 정보를 가져오는 API 엔드포인트
-    @GetMapping("/test/price")
+    // KAMIS API를 통해 가격 정보를 가져와 저장
+    @GetMapping("/kamis/prices")
     public ResponseEntity<?> getPrice(@RequestParam(name = "category_code") String categoryCode,
                                       @RequestParam(name = "regday") String regDay) {
-        priceService.getPrice(categoryCode, regDay);
+        kamisPriceImportService.getPrices(categoryCode, regDay);
         return ResponseEntity.ok("Price data fetched successfully");
     }
 
-    @GetMapping("/api/v1/test/getAllPrice")
-    public ResponseEntity<?> getAllPrice() {
-        priceService.getAllPricesForPastYear();
+    @GetMapping("/kamis/allprices")
+    public ResponseEntity<?> getAllPrice(@RequestParam(name = "start_day") String startDay,
+                                         @RequestParam(name = "end_day") String endDay) {
+        LocalDate start = LocalDate.parse(startDay);
+        LocalDate end = LocalDate.parse(endDay);
+        kamisPriceImportService.getAllPricesBetween(start,end);
         return ResponseEntity.ok("All price data fetched successfully");
     }
 
-    @GetMapping("/api/v1/getPrices")
+    @GetMapping("/getPrices")
     public ResponseEntity<?> getPrices(
             @RequestParam("item_code") String itemCode,
             @RequestParam("category_code") String categoryCode,
@@ -56,9 +62,15 @@ public class OpenAPIController {
         return ResponseEntity.ok(response);
     }
 
-    //@GetMapping("/v1/crawler")
-    //public ResponseEntity<?> getCrawler(){
-    //    crawlerService.crawling();
-    //    return ResponseEntity.ok("Crawler data fetched successfully");
-    // }
+    @GetMapping("/naver/crawling")
+    public ResponseEntity<?> getCrawler(){
+        trendingKeywordService.saveTodayTrendingKeywords();
+        return ResponseEntity.ok("Crawling completed successfully");
+    }
+
+    @GetMapping("/naver/trending")
+    public ResponseEntity<?> getTrendingKeywords() {
+        Map<String, TrendingKeywordPrice> priceInfoForTrendingKeywords = trendingKeywordService.getTrendingKeywordsPriceInfo();
+        return ResponseEntity.ok(priceInfoForTrendingKeywords);
+    }
 }

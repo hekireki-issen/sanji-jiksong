@@ -4,10 +4,7 @@ import hekireki.sanjijiksong.domain.store.entity.Store;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Getter
+@Setter
 @Entity
 @Table(name = "`USERS`")
 
