@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.user.controller;
 
+import hekireki.sanjijiksong.domain.user.api.AdminApi;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
 import hekireki.sanjijiksong.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController implements AdminApi {
 
     private final UserService userService;
 
