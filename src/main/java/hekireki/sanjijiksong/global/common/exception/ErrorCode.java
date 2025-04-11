@@ -45,7 +45,8 @@ public enum ErrorCode {
 
     //Item
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다"),
-    ITEM_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 비활성화된 상품입니다.");
+    ITEM_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 비활성화된 상품입니다."),
+    ITEM_STOCK_NOT_ENOUGH(HttpStatus.BAD_REQUEST, "상품 재고가 부족합니다.");
 
     private final HttpStatus status;
     private final String message;

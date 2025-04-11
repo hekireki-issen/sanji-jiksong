@@ -93,7 +93,6 @@ public class StoreController {
     }
 
 
-
     @GetMapping("/search")
     public ResponseEntity<List<StoreResponse>> searchStores(@RequestParam("keyword") String keyword) {
         List<StoreResponse> results = storeService.searchByKeyword(keyword);
