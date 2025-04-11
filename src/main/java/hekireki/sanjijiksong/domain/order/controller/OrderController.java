@@ -7,6 +7,9 @@ import hekireki.sanjijiksong.domain.order.service.OrderService;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,10 +70,13 @@ public class OrderController {
 
     // 내 주문 전체 조회
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getMyOrders(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    public ResponseEntity<Page<OrderResponse>> getMyOrders(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
-        List<OrderResponse> orders = orderService.getMyOrders(userDetails.getUser());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<OrderResponse> orders = orderService.getMyOrders(userDetails.getUser(), pageable);
         return ResponseEntity.ok(orders);
     }
 }
