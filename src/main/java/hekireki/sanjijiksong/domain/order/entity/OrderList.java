@@ -49,11 +49,6 @@ public class OrderList extends BaseTimeEntity {
         this.countPrice = calculateTotalPrice();
     }
 
-    // 특정 가게 상품인지 확인
-    public boolean belongsToStore(Long storeId) {
-        return store.getId().equals(storeId);
-    }
-
     public OrderList(Order order, Item item, Store store, int count) {
         this.order = order;
         this.item = item;
