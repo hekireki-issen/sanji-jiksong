@@ -6,12 +6,15 @@ import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
 import hekireki.sanjijiksong.domain.item.service.ItemService;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -67,5 +70,31 @@ public class ItemController {
     ){
         itemService.deactivateItem(storeId, itemId, customUserDetails.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getSalesOverview(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getSalesOverview(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/best-products")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getTop5BestSellingProducts(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getTop5BestSellingProducts(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/weekly-sales")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getWeeklySalesTrend(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getWeeklySalesTrend(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/hourly-sales")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getDailyHourlySales(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                 @RequestParam LocalDateTime localDateTime
+    ){
+        return itemService.getDailyHourlySales(customUserDetails.getUsername(),localDateTime);
     }
 }

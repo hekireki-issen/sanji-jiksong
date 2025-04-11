@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JWT + ECharts 도넛 차트</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.1.2/dist/echarts.min.js"></script>
+</head>
+<body>
+<h2>JWT 인증 기반 매출 통계 도넛 차트</h2>
+<div>
+    <input type="email" id="email" placeholder="email 입력">
+    <input type="password" id="password" placeholder="비밀번호 입력">
+    <button onclick="login()">로그인</button>
+</div>
+<br/>
+<div id="dashboard" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div id="chart" style="width: 100%; height: 400px;"></div>
+    <div id="top5Chart" style="width: 100%; height: 400px;"></div>
+    <div id="weeklyChart" style="width: 100%; height: 400px;"></div>
+    <div id="hourlyChart" style="width: 100%; height: 400px;"></div>
+</div>
+<script>
+    let accessToken = null;
+
+    async function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            alert("로그인 실패");
+            return;
+        }
+
+        accessToken = response.headers.get("access");
+        if (!accessToken) {
+            alert("access token 없음");
+            return;
+        }
+
+        loadPie(); // 로그인 성공 시 차트 불러오기
+        loadTop5();
+        loadWeeklyTrend(); // ← 이거 추가
+        loadHourlySales();
+    }
+
+    async function loadPie() {
+        const response = await fetch("/api/v1/stores/statistics", {
+            method: "GET",
+            headers: {"access": `${accessToken}`}
+        });
+
+        if (!response.ok) {
+            alert("통계 조회 실패");
+            return;
+        }
+
+        const data = await response.json();
+
+        // ✅ 도넛 차트용 데이터 가공
+        const chartData = data.labels.map((label, i) => ({
+            name: label,
+            value: data.series[0][i]
+        }));
+
+        const chartDom = document.getElementById("chart");
+        const myChart = echarts.init(chartDom);
+        const option = {
+            title: {
+                text: data.title,
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c}원 ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: chartData.map(item => item.name)
+            },
+            series: [
+                {
+                    name: "판매금액",
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    label: {show: true, position: 'outside'},
+                    labelLine: {show: true},
+                    data: chartData // ✅ 핵심: 가공된 데이터 삽입
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+    }
+    async function loadTop5() {
+        const response = await fetch("/api/v1/stores/best-products", {
+            method: "GET",
+            headers: {"access": `${accessToken}`}
+        });
+
+        if (!response.ok) {
+            alert("Top5 조회 실패");
+            return;
+        }
+
+        const data = await response.json();
+
+        const chartDom = document.getElementById("top5Chart");
+        const myChart = echarts.init(chartDom);
+
+        const option = {
+            title: {
+                text: "Top 5 매출",
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: '{b}: {c}원'
+            },
+            xAxis: {
+                type: 'category',
+                data: data.xAxis // ✅ 여기만 바꾸면 됨
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: data.series[0].name, // ✅ top5 말고 바로 data에서 꺼내
+                    type: 'bar',
+                    data: data.series[0].data
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+        async function loadWeeklyTrend() {
+            const response = await fetch("/api/v1/stores/weekly-sales", {
+                method: "GET",
+                headers: { "access": `${accessToken}` }
+            });
+
+            if (!response.ok) {
+                alert("주간 매출 추이 조회 실패");
+                return;
+            }
+
+            const data = await response.json();
+
+            const chartDom = document.getElementById("weeklyChart");
+            const myChart = echarts.init(chartDom);
+
+            const option = {
+                title: {
+                    text: data.title,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c}원'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.xAxis
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: data.series[0].name,
+                        type: 'line',
+                        data: data.series[0].data
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+    }
+    async function loadHourlySales() {
+        const today = new Date().toISOString().split("T")[0]; // ex) "2025-04-11"
+        const response = await fetch(`/api/v1/stores/hourly-sales?localDateTime=${today}T00:00:00`, {
+            method: "GET",
+            headers: { "access": `${accessToken}` }
+        });
+
+        if (!response.ok) {
+            alert("시간대별 매출 조회 실패");
+            return;
+        }
+
+        const data = await response.json();
+
+        const chartDom = document.getElementById("hourlyChart");
+        const myChart = echarts.init(chartDom);
+
+        const option = {
+            title: {
+                text: data.title || "시간대별 매출 추이",
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: '{b}시: {c}원'
+            },
+            xAxis: {
+                type: 'category',
+                data: data.xAxis
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: data.series[0].name,
+                    type: 'line',
+                    data: data.series[0].data
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+</script>
+</body>
+</html>
