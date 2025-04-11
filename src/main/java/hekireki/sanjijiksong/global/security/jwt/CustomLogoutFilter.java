@@ -10,10 +10,12 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
+@Slf4j
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JwtUtil jwtUtil;
@@ -33,23 +35,22 @@ public class CustomLogoutFilter extends GenericFilterBean {
 
     private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
-        //path and method verify
         String requestUri = request.getRequestURI();
-        // /logout으로 요청이 안왔을때
+        log.info("requestUri : " + requestUri);
         if (!requestUri.matches("^\\/logout$")) {
-
+            log.info("URI is not logout");
             filterChain.doFilter(request, response);
             return;
         }
-        // Post가 아닐때
+
         String requestMethod = request.getMethod();
+        log.info("requestMethod : " + requestMethod);
         if (!requestMethod.equals("POST")) {
 
             filterChain.doFilter(request, response);
             return;
         }
 
-        //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
@@ -60,44 +61,37 @@ public class CustomLogoutFilter extends GenericFilterBean {
             }
         }
 
-        //refresh null check
         if (refresh == null) {
+            log.info("token is null");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //expired check
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-            //response status code
+            log.info("token is expired");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
         if (!category.equals(TokenType.REFRESH.getValue())) {
 
-            //response status code
+            log.info("token is not refresh");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //DB에 저장되어 있는지 확인
         Boolean isExist = refreshRepository.existsByRefreshToken(refresh);
         if (!isExist) {
-
-            //response status code
+            log.info("token is not exist");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        //로그아웃 진행
-        //Refresh 토큰 DB에서 제거
         refreshRepository.deleteByRefreshToken(refresh);
 
-        //Refresh 토큰 Cookie 값 0
         Cookie cookie = new Cookie(TokenType.REFRESH.getValue(), null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
