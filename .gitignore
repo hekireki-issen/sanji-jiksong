@@ -38,3 +38,9 @@ out/
 
 ### environment variables ###
 .env*
+
+### logging ###
+*.log
+*.log.gz
+logstash.conf
+logback.xml
