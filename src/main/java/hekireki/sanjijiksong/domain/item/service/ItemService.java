@@ -18,6 +18,8 @@ import hekireki.sanjijiksong.global.common.exception.ItemException;
 import hekireki.sanjijiksong.global.common.exception.StoreException;
 import hekireki.sanjijiksong.global.common.exception.UserException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +115,11 @@ public class ItemService {
                 .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
         item.deactivate();
     }
+
+    public Page<ItemResponse> itemSearch(String keyword, Pageable pageable) {
+        return itemRepository
+                .findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
+                .map(ItemResponse::from);
 
     public ResponseEntity<Map<String, Object>> getSalesOverview(String email) {
         User user = userRepository.findByEmail(email)
@@ -296,13 +303,12 @@ public class ItemService {
         return items.stream()
                 .map(ItemResponse::from)
                 .collect(Collectors.toList());
+
     }
 
-    public Object categorySearch(String keyword) {
-        List<Item> items = itemRepository.findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
-
-        return items.stream()
-                .map(ItemResponse::from)
-                .collect(Collectors.toList());
+    public Page<ItemResponse> categorySearch(String keyword, Pageable pageable) {
+        return itemRepository
+                .findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
+                .map(ItemResponse::from);
     }
 }
