@@ -9,8 +9,8 @@ public record ItemUpdateRequest(
         Integer price,
         String image,
         Integer stock,
-        String description
+        String description,
 //        Boolean active,
-//        ItemStatus itemStatus
+        ItemStatus itemStatus
 ) {
 }

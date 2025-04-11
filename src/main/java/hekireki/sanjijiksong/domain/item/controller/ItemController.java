@@ -89,7 +89,8 @@ public class ItemController {
                 itemUpdateRequest.price(),
                 imageUrl != null ? imageUrl : itemUpdateRequest.image(),
                 itemUpdateRequest.stock(),
-                itemUpdateRequest.description()
+                itemUpdateRequest.description(),
+                itemUpdateRequest.itemStatus()
         );
 
         ItemResponse response = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(), updatedRequest);

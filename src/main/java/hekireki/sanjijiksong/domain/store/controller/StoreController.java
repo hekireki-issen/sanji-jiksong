@@ -1,4 +1,5 @@
 package hekireki.sanjijiksong.domain.store.controller;
+import hekireki.sanjijiksong.domain.store.api.StoreApi;
 import hekireki.sanjijiksong.global.common.s3.S3Service;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/stores")
 @RequiredArgsConstructor
-public class StoreController {
+public class StoreController  implements StoreApi {
     private final StoreService storeService;
     private final S3Service s3Service;
 
