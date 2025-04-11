@@ -1,7 +1,5 @@
 package hekireki.sanjijiksong.domain.user.entity;
 
-
-
 public enum Role {
-    ADMIN, BUYER, SELLER
+    BUYER, SELLER, ADMIN
 }

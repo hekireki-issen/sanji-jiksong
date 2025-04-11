@@ -3,9 +3,7 @@ package hekireki.sanjijiksong.domain.item.entity;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
 import hekireki.sanjijiksong.domain.store.entity.Store;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
-import hekireki.sanjijiksong.global.common.exception.ErrorCode;
 import hekireki.sanjijiksong.global.common.exception.ItemException;
-import hekireki.sanjijiksong.global.common.exception.UserException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,7 +43,6 @@ public class Item extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
-    // 피드백 후 수정예정
     private String category;
 
     public void updateIfChanged(ItemUpdateRequest dto) {
@@ -77,9 +74,29 @@ public class Item extends BaseTimeEntity {
 
     public void deactivate() {
         if (!this.active) {
-            throw new ItemException(ErrorCode.ITEM_ALREADY_DEACTIVATED);
+            throw new ItemException.ItemAlreadyDeactivatedException();
         }
         this.active = false;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new ItemException.ItemStockNotEnoughException();
+        }
+
+        this.stock -= quantity;
+
+        if (this.stock == 0) {
+            this.itemStatus = ItemStatus.SOLDOUT;
+        }
+    }
+
+    public void addStock(int quantity) {
+        this.stock += quantity;
+
+        if (this.itemStatus == ItemStatus.SOLDOUT && this.stock > 0) {
+            this.itemStatus = ItemStatus.ONSALE;
+        }
     }
 
 }
