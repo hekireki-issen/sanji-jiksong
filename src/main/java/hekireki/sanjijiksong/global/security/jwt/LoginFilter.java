@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -36,65 +37,66 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.refreshRepository = refreshRepository;
     }
 
-    //Login seq : 1
-    @Override//자동호출
+    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
+            log.info("--- login process ---");
         try {
             ObjectMapper mapper = new ObjectMapper();
             LoginRequest loginRequest = mapper.readValue(request.getInputStream(), LoginRequest.class);
 
-            //UsernamePasswordAuthenticationFilter의 내장 함수
+            log.info("loginRequest : " + loginRequest);
+
             String email = loginRequest.email();
             if(!isValidEmail(email)){
+                log.info("invalid email : " + email);
                 throw new BadCredentialsException("Invalid email format");
             }
 
             String password = loginRequest.password();
-            //Dto 역할
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email,password,null);
-            return authenticationManager.authenticate(authToken);//자동으로 검증 수행
+
+            log.info("authToken : " + authToken);
+
+            return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    //Login seq : 3
-    @Override//성공시 자동 실행
+
+    @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult){
+        log.info("login success");
         String email = authResult.getName();
 
-        //private final Collection<GrantedAuthority> authorities;
-        //[SimpleGrantedAuthority("ROLE_USER"), SimpleGrantedAuthority("ROLE_ADMIN")]
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        //Iterator객체
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        //iterator의 첫번쨰 값
         GrantedAuthority authority = iterator.next();
 
-        //SimpleGrantedAuthority("ROLE_USER")
-        String role = authority.getAuthority().replace("ROLE_", ""); // "ADMIN"
+        String role = authority.getAuthority().replace("ROLE_", "");
 
-        //access 토큰
+        log.info("success role : " + role);
+
         String access = jwtUtil.createJwt(TokenType.ACCESS.getValue(), email, role, JwtUtil.ACCESS_TOKEN_EXPIRE_TIME);
-        //refresh 토큰
         String refresh = jwtUtil.createJwt(TokenType.REFRESH.getValue(), email, role, JwtUtil.REFRESH_TOKEN_EXPIRE_TIME);
+
+        log.info("access token : " + access);
+        log.info("refresh token : " + refresh);
 
         addRefreshEntity(email,refresh,JwtUtil.REFRESH_TOKEN_EXPIRE_TIME);
 
         response.setHeader(TokenType.ACCESS.getValue(),access);
-        //xss 공격 대응 : JavaScript에서 쿠키를 읽을 수 없으므로, 악성 스크립트로 refresh token 탈취 어려움
         response.addCookie(createCookie(TokenType.REFRESH.getValue(),refresh));
         response.setStatus(HttpStatus.OK.value());
+        log.info("--- login complete ---");
     }
 
-    @Override//실패시 자동 실행
+    @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed){
-        //401 : 요청된 리소스에 대한 유효한 인증 자격 증명이 없어 발생하는 오류
+        log.info("login fail");
         response.setStatus(401);
     }
 
     private void addRefreshEntity(String email, String refreshToken, Long expiredMs){
-        //만료시간 설정
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
         Refresh refreshEntity = Refresh.builder()
