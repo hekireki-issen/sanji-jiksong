@@ -116,11 +116,6 @@ public class ItemService {
         item.deactivate();
     }
 
-    public Page<ItemResponse> itemSearch(String keyword, Pageable pageable) {
-        return itemRepository
-                .findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
-                .map(ItemResponse::from);
-
     public ResponseEntity<Map<String, Object>> getSalesOverview(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -297,13 +292,11 @@ public class ItemService {
         return ResponseEntity.ok(chartData);
 
 
-    public List<ItemResponse> itemSearch(String keyword) {
-        List<Item> items = itemRepository.findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
-
-        return items.stream()
-                .map(ItemResponse::from)
-                .collect(Collectors.toList());
-
+    }
+    public Page<ItemResponse> itemSearch(String keyword, Pageable pageable) {
+        return itemRepository
+                .findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
+                .map(ItemResponse::from);
     }
 
     public Page<ItemResponse> categorySearch(String keyword, Pageable pageable) {
@@ -311,4 +304,5 @@ public class ItemService {
                 .findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
                 .map(ItemResponse::from);
     }
+
 }
