@@ -82,7 +82,7 @@ public class UserService {
             throw new UserException.UserAlreadyDeactivatedException(); // 탈퇴한 사용자
         }
 
-        user.updatePassword(request.newPassword()); // setter 없이 처리
+        user.updatePassword(request.newPassword());
     }
 
     //admin method

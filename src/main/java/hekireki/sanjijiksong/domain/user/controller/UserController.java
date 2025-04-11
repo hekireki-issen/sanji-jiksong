@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.user.controller;
 
+import hekireki.sanjijiksong.domain.user.api.UserApi;
 import hekireki.sanjijiksong.domain.user.dto.PasswordResetRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserRegisterRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApi {
 
     private final UserService userService;
 
