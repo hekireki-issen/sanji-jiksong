@@ -11,26 +11,30 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ReissueController {
 
     private final ReissueService reissueService;
 
-    //Refresh seq : 1
     @PostMapping("/reissue")
     private ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String refresh = null;
 
         Cookie[] cookies = request.getCookies();
         if(cookies == null || cookies.length == 0){
+            log.info("no cookie");
             throw new SecurityException(ErrorCode.NO_REFRESH_TOKEN_COOKIE);
         }
+
+        log.info("cookies : " + cookies);
 
         for (Cookie cookie : cookies) {
             if(cookie.getName().equals(TokenType.REFRESH.getValue())){
