@@ -4,17 +4,19 @@ import hekireki.sanjijiksong.domain.item.dto.ItemCreateRequest;
 import hekireki.sanjijiksong.domain.item.dto.ItemResponse;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
 import hekireki.sanjijiksong.domain.item.service.ItemService;
+import hekireki.sanjijiksong.global.common.s3.S3Service;
 import hekireki.sanjijiksong.global.security.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -23,16 +25,30 @@ import java.util.Map;
 public class ItemController {
 
     private final ItemService itemService;
+    private final S3Service s3Service;
 
-    @PostMapping("/{storeId}/items")
+
+    @PostMapping(value = "/{storeId}/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ItemResponse> createItem(@PathVariable Long storeId,
-                                                   @RequestBody ItemCreateRequest itemCreateRequest,
-                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails
-                                                   ){
-        ItemResponse itemResponse = itemService.createItem(storeId, itemCreateRequest,customUserDetails.getUsername());
-        return ResponseEntity.ok(itemResponse);
+    public ResponseEntity<ItemResponse> createItem(
+            @PathVariable("storeId") Long storeId,
+            @RequestPart("item") ItemCreateRequest request,
+            @RequestPart("image") MultipartFile image,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) throws IOException {
+        String imageUrl = s3Service.uploadImage(image);
+        ItemCreateRequest updatedRequest = new ItemCreateRequest(
+                request.category(),
+                request.itemName(),
+                request.price(),
+                imageUrl,
+                request.stock(),
+                request.description()
+        );
+        ItemResponse response = itemService.createItem(storeId, updatedRequest, customUserDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{storeId}/items")
     @PreAuthorize("hasRole('SELLER')")
@@ -51,16 +67,37 @@ public class ItemController {
         return ResponseEntity.ok(itemListResponse);
     }
 
-    @PatchMapping("{storeId}/items/{itemId}")
+
+    @PatchMapping(value = "/{storeId}/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long storeId,
-                                                   @PathVariable Long itemId,
-                                                   @RequestBody ItemUpdateRequest itemUpdateRequest,
-                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails
-    ){
-        ItemResponse itemListResponse = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(),itemUpdateRequest);
-        return ResponseEntity.ok(itemListResponse);
+    public ResponseEntity<ItemResponse> updateItem(
+            @PathVariable("storeId") Long storeId,
+            @PathVariable("itemId") Long itemId,
+            @RequestPart("item") ItemUpdateRequest itemUpdateRequest,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) throws IOException {
+        String imageUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Service.uploadImage(image);
+        }
+
+
+        ItemUpdateRequest updatedRequest = new ItemUpdateRequest(
+                itemUpdateRequest.category(),
+                itemUpdateRequest.itemName(),
+                itemUpdateRequest.price(),
+                imageUrl != null ? imageUrl : itemUpdateRequest.image(),
+                itemUpdateRequest.stock(),
+                itemUpdateRequest.description()
+        );
+
+        ItemResponse response = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(), updatedRequest);
+        return ResponseEntity.ok(response);
     }
+
+
 
     @PatchMapping("{storeId}/items/{itemId}/deactivate")
     @PreAuthorize("hasRole('SELLER')")

@@ -5,6 +5,7 @@ import hekireki.sanjijiksong.domain.item.dto.ItemResponse;
 import hekireki.sanjijiksong.domain.item.dto.ItemSalesSummary;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
 import hekireki.sanjijiksong.domain.item.entity.Item;
+import hekireki.sanjijiksong.domain.item.entity.ItemStatus;
 import hekireki.sanjijiksong.domain.item.repository.ItemRepository;
 import hekireki.sanjijiksong.domain.order.entity.OrderList;
 import hekireki.sanjijiksong.domain.order.repository.OrderListRepository;
@@ -288,5 +289,20 @@ public class ItemService {
         ));
         return ResponseEntity.ok(chartData);
 
+
+    public List<ItemResponse> itemSearch(String keyword) {
+        List<Item> items = itemRepository.findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
+
+        return items.stream()
+                .map(ItemResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public Object categorySearch(String keyword) {
+        List<Item> items = itemRepository.findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE);
+
+        return items.stream()
+                .map(ItemResponse::from)
+                .collect(Collectors.toList());
     }
 }

@@ -46,15 +46,11 @@ public class OrderController {
 
     // 주문 수정
     @PatchMapping("/{orderId}/items/{itemId}")
-    public ResponseEntity<OrderResponse> updateOrderItem(
+    public ResponseEntity<OrderResponse> updateOrderItems(
             @PathVariable Long orderId,
-            @PathVariable Long itemId,
             @RequestBody @Valid OrderListUpdateRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        OrderResponse response = orderService.updateOrderItem(
-                orderId, itemId, request.count(), userDetails.getUser()
-        );
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        OrderResponse response = orderService.updateOrderItems(request, userDetails.getUser());
         return ResponseEntity.ok(response);
     }
 
