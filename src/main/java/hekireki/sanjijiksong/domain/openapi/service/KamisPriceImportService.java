@@ -33,9 +33,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class KamisPriceImportService {
-    @Value("${KAMIS_CERT_ID}")
+    @Value("${kamis.cert.id}")
     private String certId;
-    @Value("${KAMIS_CERT_KEY}")
+    @Value("${kamis.cert.key}")
     private String certKey;
 
     private static final String SEARCH_PRICE_URL = "http://www.kamis.co.kr/service/price/xml.do?action=dailyPriceByCategoryList";

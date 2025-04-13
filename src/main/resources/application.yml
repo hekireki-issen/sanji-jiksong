@@ -46,3 +46,8 @@ cloud:
       static: ${AWS_REGION}
     s3:
       bucket: ${AWS_BUCKET}
+
+kamis:
+    cert:
+        id: ${KAMIS_CERT_ID}
+        key: ${KAMIS_CERT_KEY}
