@@ -28,10 +28,9 @@ public class ItemController {
     private final S3Service s3Service;
 
 
-    @PostMapping(value = "/{storeId}/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ItemResponse> createItem(
-            @PathVariable("storeId") Long storeId,
             @RequestPart("item") ItemCreateRequest request,
             @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -45,17 +44,16 @@ public class ItemController {
                 request.stock(),
                 request.description()
         );
-        ItemResponse response = itemService.createItem(storeId, updatedRequest, customUserDetails.getUsername());
+        ItemResponse response = itemService.createItem(updatedRequest, customUserDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
 
-    @GetMapping("/{storeId}/items")
+    @GetMapping("/items")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<List<ItemResponse>> getMyItems (@PathVariable Long storeId,
-                                                       @AuthenticationPrincipal CustomUserDetails customUserDetails
+    public ResponseEntity<List<ItemResponse>> getMyItems(@AuthenticationPrincipal CustomUserDetails customUserDetails
                                                        ){
-        List<ItemResponse> itemListResponse = itemService.getMyItems(storeId,customUserDetails.getUsername());
+        List<ItemResponse> itemListResponse = itemService.getMyItems(customUserDetails.getUsername());
         return ResponseEntity.ok(itemListResponse);
     }
 
@@ -68,10 +66,9 @@ public class ItemController {
     }
 
 
-    @PatchMapping(value = "/{storeId}/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ItemResponse> updateItem(
-            @PathVariable("storeId") Long storeId,
             @PathVariable("itemId") Long itemId,
             @RequestPart("item") ItemUpdateRequest itemUpdateRequest,
             @RequestPart(value = "image", required = false) MultipartFile image,
@@ -94,19 +91,18 @@ public class ItemController {
                 itemUpdateRequest.itemStatus()
         );
 
-        ItemResponse response = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(), updatedRequest);
+        ItemResponse response = itemService.updateItem(itemId, customUserDetails.getUsername(), updatedRequest);
         return ResponseEntity.ok(response);
     }
 
 
 
-    @PatchMapping("{storeId}/items/{itemId}/deactivate")
+    @PatchMapping("/items/{itemId}/deactivate")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> deactivateItem(@PathVariable Long storeId,
-                                                       @PathVariable Long itemId,
+    public ResponseEntity<?> deactivateItem(@PathVariable Long itemId,
                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
-        itemService.deactivateItem(storeId, itemId, customUserDetails.getUsername());
+        itemService.deactivateItem(itemId, customUserDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 
