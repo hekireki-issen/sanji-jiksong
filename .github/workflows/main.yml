@@ -1,0 +1,74 @@
+name: Dev CI on WSL Runner
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    env:
+      # 필요한 환경변수를 GitHub Secrets로 관리
+      DATA_REDIS_HOST: ${{ secrets.DATA_REDIS_HOST }}
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      JPA_DDI: ${{ secrets.JPA_DDI }}
+      JPA_DDL_AUTO: ${{ secrets.JPA_DDL_AUTO }}
+      NAVER_BOOK_ID: ${{ secrets.NAVER_BOOK_ID }}
+      NAVER_BOOK_SECRET: ${{ secrets.NAVER_BOOK_SECRET }}
+      SQL_INIT_MODE: ${{ secrets.SQL_INIT_MODE }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
+      - name: Run unit tests
+        run: ./gradlew test
+
+      - name: Stop existing app (systemd)
+        if: ${{ success() }}
+        run: |
+          sudo systemctl stop sz_service || echo "서비스가 안 켜져 있었음"
+
+      - name: Build new JAR
+        if: ${{ success() }}
+        run: ./gradlew build -x test
+
+      - name: Deploy new JAR using systemd service
+        if: ${{ success() }}
+        run: |
+          echo "📦 현재 디렉토리: $(pwd)"
+          echo "📁 libs 내부 파일 목록:"
+          ls -lh build/libs
+          echo "🚀 Spring Boot 애플리케이션 실행 중..."
+          
+          sudo systemctl stop sz_service || echo "서비스가 안 켜져 있었음"
+          sudo systemctl start sz_service
+          
+          sudo systemctl daemon-reload
+          sudo systemctl enable newapp.service
+          sudo systemctl start newapp.service
+          sleep 5
+          head -n 100 app.log || echo "(로그 없음)"
+
+      - name: Check if app is running
+        if: ${{ success() }}
+        run: |
+          echo "🔍 실행 중인 Java 프로세스:"
+          pgrep -af 'java'
+          
+          
+      - name: Restart Spring Boot service
+        if: ${{ success() }}
+        run: |
+          echo "Spring Boot 서비스가 재시작되었습니다."
