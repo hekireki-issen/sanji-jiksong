@@ -14,16 +14,17 @@ jobs:
 
     env:
       # 필요한 환경변수를 GitHub Secrets로 관리
-      DATA_REDIS_HOST: ${{ secrets.DATA_REDIS_HOST }}
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      JPA_DDI: ${{ secrets.JPA_DDI }}
+      DB_DRIVER: ${{ secrets.DB_DRIVER }}
       JPA_DDL_AUTO: ${{ secrets.JPA_DDL_AUTO }}
-      NAVER_BOOK_ID: ${{ secrets.NAVER_BOOK_ID }}
-      NAVER_BOOK_SECRET: ${{ secrets.NAVER_BOOK_SECRET }}
-      SQL_INIT_MODE: ${{ secrets.SQL_INIT_MODE }}
+      KAMIS_CERT_ID: ${{ secrets.KAMIS_CERT_ID }}
+      KAMIS_CERT_KEY: ${{ secrets.KAMIS_CERT_KEY }}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_BUCKET: ${{ secrets.AWS_BUCKET }}
 
     steps:
       - name: Check out code
