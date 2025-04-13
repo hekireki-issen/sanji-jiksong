@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +58,8 @@ public interface AdminApi {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    ResponseEntity<List<UserResponse>> getAllUsers();
+    ResponseEntity<Page<UserResponse>> getAllUsers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size);
 
     @Operation(summary = "사용자 비활성화", description = "지정한 사용자의 active 상태를 false로 설정합니다. 관리자 권한이 필요합니다.")
     @ApiResponses({
