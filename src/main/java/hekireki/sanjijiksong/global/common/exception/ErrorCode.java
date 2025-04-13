@@ -43,6 +43,9 @@ public enum ErrorCode {
     KAMIS_API_WRONG_PARAMETER(HttpStatus.BAD_REQUEST, "KAMIS API에서 잘못된 파라미터입니다."),
     KAMIS_API_UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "KAMIS API 인증에 실패했습니다."),
 
+    //KAMIS API 가격 조회 관련 예외
+    PriceQueryPeriodTooLong(HttpStatus.BAD_REQUEST, "가격 조회 기간이 너무 깁니다. 30일 이내로 설정해주세요."),
+
     //Item
     ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "상품이 존재하지 않습니다"),
     ITEM_ALREADY_DEACTIVATED(HttpStatus.BAD_REQUEST, "이미 비활성화된 상품입니다."),

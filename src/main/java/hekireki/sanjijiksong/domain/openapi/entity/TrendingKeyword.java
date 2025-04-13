@@ -18,7 +18,7 @@ import java.time.LocalDate;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "trending_keyword_unique",
-                        columnNames = {"keyword", "category", "rank", "date"}
+                        columnNames = {"keyword", "category", "rank", "create_date"}
                 )
         })
 public class TrendingKeyword {
