@@ -4,6 +4,7 @@ import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
 import hekireki.sanjijiksong.domain.openapi.Repository.TrendingKeywordRepository;
 import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
 import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
+import hekireki.sanjijiksong.domain.openapi.service.webdriver.WebDriverProvider;
 import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class TrendingKeywordService {
     private final TrendingKeywordRepository trendingKeywordRepository;
     private final PriceDailyRepository priceDailyRepository;
+    private final WebDriverProvider webDriverProvider;
 
     /**
      * 오늘 날짜의 TrendingKeyword 각각에 대해, PriceDaily 테이블에서 itemName에 해당 키워드가 포함된 최신 레코드를 조회하여
@@ -70,11 +72,7 @@ public class TrendingKeywordService {
 
     public void saveTodayTrendingKeywords() {
         // ChromeOptions 설정
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--window-size=1920,1080", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
-
-        // WebDriver 객체 생성
-        WebDriver driver = new ChromeDriver(options);
+        WebDriver driver = webDriverProvider.getDriver();
 
         try {
             log.info("크롤링 시작");

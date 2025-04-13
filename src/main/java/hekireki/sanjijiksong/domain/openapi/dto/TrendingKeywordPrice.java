@@ -1,7 +1,11 @@
 package hekireki.sanjijiksong.domain.openapi.dto;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import java.time.LocalDate;
 
+@Builder
 public record TrendingKeywordPrice(
         String keyword,               // 인기 검색어
         String category,              // TrendingKeyword에 저장된 상위 카테고리 ("식품")
