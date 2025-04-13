@@ -40,123 +40,63 @@ public class ItemService {
     private final StoreRepository storeRepository;
     private final OrderListRepository orderListRepository;
 
-    public ItemResponse createItem(Long storeId, ItemCreateRequest itemCreateRequest, String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Store userStore = user.getStore();
-
-        if (userStore == null) {
-            throw new StoreException(ErrorCode.STORE_NOT_FOUND);
-        }
-
-        if (!userStore.getId().equals(storeId)) {
-            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
-        }
+    public ItemResponse createItem(ItemCreateRequest itemCreateRequest, String email) {
+        Store userStore = verifyAndGetStore( email);
 
         Item savedItem = itemRepository.save(itemCreateRequest.toEntity(userStore));
         return ItemResponse.from(savedItem);
     }
 
-    public List<ItemResponse> getMyItems(Long storeId, String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public List<ItemResponse> getMyItems(String email) {
+        Store userStore = verifyAndGetStore( email);
 
-        Store userStore = user.getStore();
-
-        if (userStore == null) {
-            throw new StoreException(ErrorCode.STORE_NOT_FOUND);
-        }
-
-        if (!userStore.getId().equals(storeId)) {
-            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
-        }
-
-        List<Item> AllItem = itemRepository.findAllByStoreId(storeId);
+        List<Item> AllItem = itemRepository.findAllByStoreId(userStore.getId());
         return AllItem.stream()
                 .map(ItemResponse::from)
                 .collect(Collectors.toList());
     }
 
     public ItemResponse getItemDetail(Long storeId, Long itemId) {
-        Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        Item item = getVerifiedItem(storeId, itemId);
         return ItemResponse.from(item);
     }
 
     @Transactional
-    public ItemResponse updateItem(Long storeId, Long itemId, String email, ItemUpdateRequest itemUpdateRequest) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public ItemResponse updateItem(Long itemId, String email, ItemUpdateRequest itemUpdateRequest) {
+        Store userStore = verifyAndGetStore(email);
 
-        Store store = storeRepository.findByUserId(user.getId());
-        if (!store.getId().equals(storeId)) {
-            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
-        }
-
-        Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        Item item = getVerifiedItem(userStore.getId(), itemId);
         item.updateIfChanged(itemUpdateRequest);
 
         return ItemResponse.from(item);
     }
 
     @Transactional
-    public void deactivateItem(Long storeId, Long itemId, String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    public void deactivateItem(Long itemId, String email) {
 
-        Store store = storeRepository.findByUserId(user.getId());
-        if (!store.getId().equals(storeId)) {
-            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
-        }
+        Store userStore = verifyAndGetStore(email);
 
-        Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
-                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        Item item = getVerifiedItem(userStore.getId(), itemId);
         item.deactivate();
     }
 
     public ResponseEntity<Map<String, Object>> getSalesOverview(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        Store store = storeRepository.findByUserId(user.getId());
-        if (store == null) {
-            throw new StoreException(ErrorCode.STORE_NOT_FOUND);
-        }
+        Store userStore = verifyAndGetStore(email);
 
         //판매량
-        List<OrderList> orderLists = orderListRepository.findAllByStoreId(store.getId());
+        List<OrderList> orderLists = orderListRepository.findAllByStoreId(userStore.getId());
 
         Map<String, Object> chartData = new HashMap<>();
         chartData.put("title", "품목 매출 현황");
 
-        Map<String, ItemSalesSummary> itemSalesData = new HashMap<>();
-        for (OrderList order : orderLists) {
-            String itemName = order.getItem().getName();
-            int price = order.getCountPrice();
-            int count = order.getCount();
-
-            itemSalesData.compute(itemName, (key, summary) -> {
-                if (summary == null) {
-                    return new ItemSalesSummary(price, count);
-                } else {
-                    return new ItemSalesSummary(
-                            summary.totalRevenue() + price,
-                            summary.totalCount() + count
-                    );
-                }
-            });
-        }
+        Map<String, ItemSalesSummary> itemSalesData = calculateItemSalesSummary(orderLists);
 
         List<String> itemNames = new ArrayList<>();
         List<Integer> revenues = new ArrayList<>();
-        List<Integer> counts = new ArrayList<>();
-
         for (Map.Entry<String, ItemSalesSummary> entry : itemSalesData.entrySet()) {
             itemNames.add(entry.getKey());
             revenues.add(entry.getValue().totalRevenue());
-            counts.add(entry.getValue().totalCount());
         }
 
         chartData.put("labels", itemNames);
@@ -165,40 +105,16 @@ public class ItemService {
         return ResponseEntity.ok(chartData);
     }
 
-
     public ResponseEntity<?> getTop5BestSellingProducts(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        Store store = storeRepository.findByUserId(user.getId());
-        if (store == null) {
-            throw new StoreException(ErrorCode.STORE_NOT_FOUND);
-        }
-        List<OrderList> orderLists = orderListRepository.findAllByStoreId(store.getId());
-        Map<String, Integer> itemSalesData = new HashMap<>();
-
-        for (OrderList order : orderLists) {
-            String itemName = order.getItem().getName();
-            int price = order.getCountPrice();
-
-            itemSalesData.put(itemName, itemSalesData.getOrDefault(itemName, 0) + price);
-        }
-
-        List<String> keySet = new ArrayList<>(itemSalesData.keySet());
-
-        keySet.sort(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return itemSalesData.get(o1).compareTo(itemSalesData.get(o2));
-            }
-        });
+        Store userStore = verifyAndGetStore(email);
+        Map<String, Integer> itemSalesData = rankItemsBySalesAsc(userStore);
 
         List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(itemSalesData.entrySet());
         sortedEntries.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
         List<String> top5ItemNames = new ArrayList<>();
         List<Integer> top5Revenues = new ArrayList<>();
-
         for (int i = 0; i < Math.min(5, sortedEntries.size()); i++) {
             Map.Entry<String, Integer> entry = sortedEntries.get(i);
             top5ItemNames.add(entry.getKey());
@@ -216,14 +132,121 @@ public class ItemService {
     }
 
     public ResponseEntity<?> getWeeklySalesTrend(String email) {
+
+        Store userStore = verifyAndGetStore(email);
+        List<OrderList> orderLists = orderListRepository.findAllByStoreId(userStore.getId());
+
+        Map<String, Integer> itemSalesData = calculateSalesByDayLast7Days(orderLists);
+
+        Map<String, Object> chartData = new HashMap<>();
+        chartData.put("title", "주간 매출 추이");
+        chartData.put("xAxis", new ArrayList<>(itemSalesData.keySet()));
+        chartData.put("series", List.of(
+                Map.of("name", "매출", "data", new ArrayList<>(itemSalesData.values()))
+        ));
+
+        return ResponseEntity.ok(chartData);
+    }
+
+    public ResponseEntity<?> getDailyHourlySales(String email, LocalDateTime localDateTime) {
+
+        Store userStore = verifyAndGetStore(email);
+
+        LocalDate targetDate = LocalDate.of(localDateTime.getYear(), localDateTime.getMonth(), localDateTime.getDayOfMonth());
+        LocalDateTime startOfDay = targetDate.atStartOfDay(); // 00:00:00
+        LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX); // 23:59:59.999999999
+
+        List<OrderList> orderLists = orderListRepository.findAllByStoreIdAndDate(userStore.getId(), startOfDay, endOfDay);
+        Map<String, Integer> itemSalesData = getHourlyRevenueMap(orderLists);
+
+        Map<String, Object> chartData = new HashMap<>();
+        chartData.put("title", "시간별 매출 추이");
+        chartData.put("xAxis", new ArrayList<>(itemSalesData.keySet()));
+        chartData.put("series", List.of(
+                Map.of("name", "매출", "data", new ArrayList<>(itemSalesData.values()))
+        ));
+
+        return ResponseEntity.ok(chartData);
+    }
+
+    public Page<ItemResponse> itemSearch(String keyword, Pageable pageable) {
+        return itemRepository
+                .findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
+                .map(ItemResponse::from);
+    }
+
+    public Page<ItemResponse> categorySearch(String keyword, Pageable pageable) {
+        return itemRepository
+                .findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
+                .map(ItemResponse::from);
+    }
+
+    private Store verifyAndGetStore(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        Store store = storeRepository.findByUserId(user.getId());
-        if (store == null) {
+        Store userStore = user.getStore();
+
+        if (userStore == null) {
             throw new StoreException(ErrorCode.STORE_NOT_FOUND);
         }
-        List<OrderList> orderLists = orderListRepository.findAllByStoreId(store.getId());
+
+        if (!userStore.getId().equals(user.getId())) {
+            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
+        }
+        return userStore;
+    }
+
+    private Item getVerifiedItem(Long storeId, Long itemId) {
+        Item item = itemRepository.findByStoreIdAndId(storeId, itemId)
+                .orElseThrow(() -> new ItemException(ErrorCode.ITEM_NOT_FOUND));
+        return item;
+    }
+
+    private static Map<String, ItemSalesSummary> calculateItemSalesSummary(List<OrderList> orderLists) {
+        Map<String, ItemSalesSummary> itemSalesData = new HashMap<>();
+        for (OrderList order : orderLists) {
+            String itemName = order.getItem().getName();
+            int price = order.getCountPrice();
+            int count = order.getCount();
+
+            itemSalesData.compute(itemName, (key, summary) -> {
+                if (summary == null) {
+                    return new ItemSalesSummary(price, count);
+                } else {
+                    return new ItemSalesSummary(
+                            summary.totalRevenue() + price,
+                            summary.totalCount() + count
+                    );
+                }
+            });
+        }
+        return itemSalesData;
+    }
+
+    private Map<String, Integer> rankItemsBySalesAsc(Store userStore) {
+        List<OrderList> orderLists = orderListRepository.findAllByStoreId(userStore.getId());
+        Map<String, Integer> itemSalesData = new HashMap<>();
+
+        for (OrderList order : orderLists) {
+            String itemName = order.getItem().getName();
+            int price = order.getCountPrice();
+
+            itemSalesData.put(itemName, itemSalesData.getOrDefault(itemName, 0) + price);
+        }
+
+        List<String> keySet = new ArrayList<>(itemSalesData.keySet());
+
+        keySet.sort(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return itemSalesData.get(o1).compareTo(itemSalesData.get(o2));
+            }
+        });
+        return itemSalesData;
+    }
+
+    private static Map<String, Integer> calculateSalesByDayLast7Days(List<OrderList> orderLists) {
         Map<String, Integer> itemSalesData = new HashMap<>();
 
         for (OrderList order : orderLists) {
@@ -242,31 +265,10 @@ public class ItemService {
 
             itemSalesData.put(saleDate, itemSalesData.getOrDefault(saleDate, 0) + price);
         }
-        Map<String, Object> chartData = new HashMap<>();
-        chartData.put("title", "주간 매출 추이");
-        chartData.put("xAxis", new ArrayList<>(itemSalesData.keySet()));
-        chartData.put("series", List.of(
-                Map.of("name", "매출", "data", new ArrayList<>(itemSalesData.values()))
-        ));
-
-        return ResponseEntity.ok(chartData);
+        return itemSalesData;
     }
 
-    public ResponseEntity<?> getDailyHourlySales(String email, LocalDateTime localDateTime) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        Store store = storeRepository.findByUserId(user.getId());
-        if (store == null) {
-            throw new StoreException(ErrorCode.STORE_NOT_FOUND);
-        }
-
-        LocalDate targetDate = LocalDate.of(localDateTime.getYear(), localDateTime.getMonth(), localDateTime.getDayOfMonth());
-
-        LocalDateTime startOfDay = targetDate.atStartOfDay(); // 00:00:00
-        LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX); // 23:59:59.999999999
-
-        List<OrderList> orderLists = orderListRepository.findAllByStoreIdAndDate(store.getId(), startOfDay, endOfDay);
+    private static Map<String, Integer> getHourlyRevenueMap(List<OrderList> orderLists) {
         Map<String, Integer> itemSalesData = new HashMap<>();
 
         for (OrderList order : orderLists) {
@@ -283,26 +285,6 @@ public class ItemService {
 
             itemSalesData.put(saleDate, itemSalesData.getOrDefault(saleDate, 0) + price);
         }
-        Map<String, Object> chartData = new HashMap<>();
-        chartData.put("title", "시간별 매출 추이");
-        chartData.put("xAxis", new ArrayList<>(itemSalesData.keySet()));
-        chartData.put("series", List.of(
-                Map.of("name", "매출", "data", new ArrayList<>(itemSalesData.values()))
-        ));
-        return ResponseEntity.ok(chartData);
-
-
+        return itemSalesData;
     }
-    public Page<ItemResponse> itemSearch(String keyword, Pageable pageable) {
-        return itemRepository
-                .findAllByNameContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
-                .map(ItemResponse::from);
-    }
-
-    public Page<ItemResponse> categorySearch(String keyword, Pageable pageable) {
-        return itemRepository
-                .findAllByCategoryContainingAndItemStatusAndActiveIsTrue(keyword, ItemStatus.ONSALE, pageable)
-                .map(ItemResponse::from);
-    }
-
 }
