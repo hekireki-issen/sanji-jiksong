@@ -4,6 +4,7 @@ package hekireki.sanjijiksong.domain.openapi.service;
 import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
 import hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice.KamisDailyResponse;
 import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
+import hekireki.sanjijiksong.global.common.exception.KamisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,8 +95,6 @@ public class KamisPriceImportService {
                 } catch (Exception e) {
                     // 각 API 호출 시 발생한 예외 로깅 후 다음 카테고리 호출 진행
                     log.error("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
-                    throw new RuntimeException();
-
                 }
             }
         }

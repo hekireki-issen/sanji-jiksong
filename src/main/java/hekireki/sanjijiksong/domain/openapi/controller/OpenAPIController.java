@@ -38,7 +38,7 @@ public class OpenAPIController {
     public ResponseEntity<?> getPrice(@RequestParam(name = "category_code") String categoryCode,
                                       @RequestParam(name = "regday") String regDay) {
         kamisPriceImportService.getPrices(categoryCode, regDay);
-        return ResponseEntity.ok("Price data fetched successfully");
+        return ResponseEntity.ok(null);
     }
 
     @GetMapping("/kamis/allprices")
