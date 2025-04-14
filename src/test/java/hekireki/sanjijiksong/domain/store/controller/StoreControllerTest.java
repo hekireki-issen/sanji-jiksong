@@ -115,7 +115,7 @@ class StoreControllerTest {
         when(storeService.getById(999L)).thenReturn(null);
 
         mockMvc.perform(get("/api/v1/stores/999"))
-                .andExpect(status().isOk()); // 이건 예외 던지게 만들 수도 있음
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -146,6 +146,29 @@ class StoreControllerTest {
                 .andExpect(jsonPath("$.id").value(1L));
     }
 
+    @Test
+    @WithMockUser(username = "seller@example.com", roles = "SELLER")
+    @DisplayName("가게 등록 실패 - 예외 발생")
+    void createStore_throwsException() throws Exception {
+        StoreCreateRequest request = new StoreCreateRequest("카페", "서울", "설명", null);
+        String json = objectMapper.writeValueAsString(request);
+        MockMultipartFile store = new MockMultipartFile("store", "", "application/json", json.getBytes());
+
+        when(storeService.create(any(), eq(1L))).thenThrow(new RuntimeException("DB 오류"));
+
+        CustomUserDetails userDetails = new CustomUserDetails(mockSeller);
+
+        mockMvc.perform(multipart("/api/v1/stores")
+                        .file(store)
+                        .with(SecurityMockMvcRequestPostProcessors.authentication(
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
+                        ))
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isInternalServerError());
+    }
+
+
+    
     @Test
     @DisplayName("가게 검색 성공")
     void searchStore() throws Exception {
