@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.item.controller;
 
+import hekireki.sanjijiksong.domain.item.api.ItemSearchApi;
 import hekireki.sanjijiksong.domain.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class ItemSearchController {
+public class ItemSearchController implements ItemSearchApi {
 
     private final ItemService itemService;
 

@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.item.controller;
 
+import hekireki.sanjijiksong.domain.item.api.ItemApi;
 import hekireki.sanjijiksong.domain.item.dto.ItemCreateRequest;
 import hekireki.sanjijiksong.domain.item.dto.ItemResponse;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
@@ -22,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/stores")
-public class ItemController {
+public class ItemController implements ItemApi {
 
     private final ItemService itemService;
     private final S3Service s3Service;
