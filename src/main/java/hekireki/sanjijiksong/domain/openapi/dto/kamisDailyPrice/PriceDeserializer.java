@@ -3,7 +3,9 @@ package hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -42,7 +44,10 @@ public class PriceDeserializer extends StdDeserializer<KamisDailyResponse.Data> 
             }
         }
         // 객체로 온 경우 기본 동작
-        ObjectMapper mapper = (ObjectMapper) jp.getCodec();
-        return mapper.readValue(jp,KamisDailyResponse.Data.class);
+        ObjectCodec codec = jp.getCodec();
+        JsonNode node = codec.readTree(jp);
+        // 새로운 ObjectMapper를 생성하여 재귀 호출 없이 기본 역직렬화를 진행
+        ObjectMapper delegate = new ObjectMapper();
+        return delegate.treeToValue(node, KamisDailyResponse.Data.class);
     }
 }
