@@ -2,15 +2,41 @@ package hekireki.sanjijiksong.global.common.exception.advice;
 
 import hekireki.sanjijiksong.global.common.exception.*;
 import hekireki.sanjijiksong.global.common.exception.SecurityException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
 public class ApiExceptionAdvice {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGeneralException(Exception ex) {
+        ErrorResponse response = new ErrorResponse("INTERNAL_SERVER_ERROR", "An unexpected error occurred.");
+        log.error("Exception: ", ex);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Object> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        ErrorResponse response = new ErrorResponse("MISSING_PARAMETER", ex.getMessage());
+        log.info("MissingServletRequestParameterException: {}", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
+        ErrorResponse response = new ErrorResponse("VALIDATION_ERROR", ExceptionUtils.getRootCauseMessage(ex));
+        log.error("ConstraintViolationException: {}", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         ErrorResponse response = new ErrorResponse("INVALID_ARGUMENT", ex.getMessage());

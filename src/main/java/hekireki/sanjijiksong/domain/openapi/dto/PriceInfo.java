@@ -7,6 +7,7 @@ public record PriceInfo(
         String categoryCode,
         String itemCode,
         String itemName,
+        String kindName,   // 추가된 필드
         String unit,
         Integer currentPrice,
         Integer oneDayAgoPrice,
