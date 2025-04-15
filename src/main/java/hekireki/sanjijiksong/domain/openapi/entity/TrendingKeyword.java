@@ -1,4 +1,4 @@
-package hekireki.sanjijiksong.domain.price.entity;
+package hekireki.sanjijiksong.domain.openapi.entity;
 
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
