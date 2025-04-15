@@ -43,4 +43,3 @@ out/
 *.log
 *.log.gz
 logstash.conf
-logback.xml
