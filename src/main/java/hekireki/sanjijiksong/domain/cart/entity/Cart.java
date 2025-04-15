@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 @Builder
 @Entity
 @Getter
+@Setter
 public class Cart extends BaseTimeEntity {
 
     @Id

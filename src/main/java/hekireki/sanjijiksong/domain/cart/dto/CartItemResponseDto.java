@@ -2,6 +2,7 @@ package hekireki.sanjijiksong.domain.cart.dto;
 
 import hekireki.sanjijiksong.domain.cart.entity.CartItem;
 
+
 public record CartItemResponseDto(
         Long itemId,
         String itemName,
@@ -11,6 +12,7 @@ public record CartItemResponseDto(
         int totalPrice,
         String itemStatus
 ) {
+ dev
     public static CartItemResponseDto from(CartItem cartItem) {
         return new CartItemResponseDto(
                 cartItem.getItem().getId(),
