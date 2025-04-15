@@ -4,6 +4,7 @@ package hekireki.sanjijiksong.domain.openapi.service;
 import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
 import hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice.KamisDailyResponse;
 import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
+import hekireki.sanjijiksong.global.common.exception.KamisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,26 +19,55 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
+
+
+/**
+ * KAMIS API를 통해 가격 정보를 가져오는 서비스
+ * @author sanjijiksong
+ */
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Slf4j
 public class KamisPriceImportService {
-    @Value("${KAMIS_CERT_ID}")
+    @Value("${kamis.cert.id}")
     private String certId;
-    @Value("${KAMIS_CERT_KEY}")
+    @Value("${kamis.cert.key}")
     private String certKey;
 
     private static final String SEARCH_PRICE_URL = "http://www.kamis.co.kr/service/price/xml.do?action=dailyPriceByCategoryList";
+    private static final List<String> CATEGORY_CODES = Arrays.asList("100", "200", "300", "400", "500", "600");
 
     private final PriceDailyRepository priceDailyRepository;
     private final RestTemplate restTemplate;
 
+    /**
+     * 특정 카테고리와 날짜에 대한 가격 정보를 가져오는 메서드
+     * @param categoryCode 카테고리 코드
+     * @param regDay 조회할 날짜 (yyyy-MM-dd 형식)
+     */
     @Transactional
     public void getPrices(String categoryCode, String regDay) {
-        URI targetUri = UriComponentsBuilder
+        URI targetUri = buildKamisUri(categoryCode, regDay);
+        KamisDailyResponse response = restTemplate.exchange(targetUri, HttpMethod.GET, getHttpEntity(), KamisDailyResponse.class).getBody();
+
+        List<PriceDaily> priceList = response.from();
+        log.info("Price List: {}", priceList.toString());
+
+        priceDailyRepository.saveAll(priceList);
+    }
+
+    /**
+     * KAMIS API 호출을 위한 URI를 생성하는 메서드
+     * @param categoryCode 카테고리 코드
+     * @param regDay 조회할 날짜 (yyyy-MM-dd 형식)
+     * @return 생성된 URI
+     */
+    private URI buildKamisUri(String categoryCode, String regDay) {
+        return UriComponentsBuilder
                 .fromUriString(SEARCH_PRICE_URL)
                 .queryParam("p_cert_id", certId)
                 .queryParam("p_cert_key", certKey)
@@ -48,36 +78,26 @@ public class KamisPriceImportService {
                 .build()
                 .encode(StandardCharsets.UTF_8)
                 .toUri();
-        ;
-
-        KamisDailyResponse response = restTemplate.exchange(targetUri, HttpMethod.GET, getHttpEntity(), KamisDailyResponse.class).getBody();
-        List<PriceDaily> priceList = response.from();
-        log.info("Price List: {}", priceList.toString());
-
-        // DB에 저장
-        priceDailyRepository.saveAll(priceList);
     }
 
+    /**
+     * 특정 날짜 범위에 대한 가격 정보를 가져오는 메서드
+     * @param start 시작 날짜
+     * @param end 종료 날짜
+     */
     @Transactional
     public void getAllPricesBetween(LocalDate start, LocalDate end) {
         for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
             String regDay = date.toString(); // "yyyy-MM-dd" 형식
-            // 6개의 카테고리 코드에 대해 반복
-            for (String categoryCode : new String[]{"100", "200", "300", "400", "500", "600"}) {
+            for (String categoryCode : CATEGORY_CODES) {
                 try {
-                    saveDailyPrice(categoryCode, regDay);
+                    getPrices(categoryCode, regDay);
                 } catch (Exception e) {
                     // 각 API 호출 시 발생한 예외 로깅 후 다음 카테고리 호출 진행
-                    // 예: logger.warn("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
-                    log.warn("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
+                    log.error("카테고리 {}의 {} 데이터 조회 실패: {}", categoryCode, regDay, e.getMessage());
                 }
             }
         }
-    }
-
-    @Transactional
-    public void saveDailyPrice(String categoryCode, String regDay){
-        getPrices(categoryCode, regDay);
     }
 
     private HttpEntity<String> getHttpEntity() {

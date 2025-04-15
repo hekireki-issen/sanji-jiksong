@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.item.controller;
 
+import hekireki.sanjijiksong.domain.item.api.ItemApi;
 import hekireki.sanjijiksong.domain.item.dto.ItemCreateRequest;
 import hekireki.sanjijiksong.domain.item.dto.ItemResponse;
 import hekireki.sanjijiksong.domain.item.dto.ItemUpdateRequest;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.List;
 
@@ -21,16 +23,15 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/stores")
-public class ItemController {
+public class ItemController implements ItemApi {
 
     private final ItemService itemService;
     private final S3Service s3Service;
 
 
-    @PostMapping(value = "/{storeId}/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ItemResponse> createItem(
-            @PathVariable("storeId") Long storeId,
             @RequestPart("item") ItemCreateRequest request,
             @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -44,17 +45,16 @@ public class ItemController {
                 request.stock(),
                 request.description()
         );
-        ItemResponse response = itemService.createItem(storeId, updatedRequest, customUserDetails.getUsername());
+        ItemResponse response = itemService.createItem(updatedRequest, customUserDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
 
-    @GetMapping("/{storeId}/items")
+    @GetMapping("/items")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<List<ItemResponse>> getMyItems (@PathVariable Long storeId,
-                                                       @AuthenticationPrincipal CustomUserDetails customUserDetails
+    public ResponseEntity<List<ItemResponse>> getMyItems(@AuthenticationPrincipal CustomUserDetails customUserDetails
                                                        ){
-        List<ItemResponse> itemListResponse = itemService.getMyItems(storeId,customUserDetails.getUsername());
+        List<ItemResponse> itemListResponse = itemService.getMyItems(customUserDetails.getUsername());
         return ResponseEntity.ok(itemListResponse);
     }
 
@@ -67,10 +67,9 @@ public class ItemController {
     }
 
 
-    @PatchMapping(value = "/{storeId}/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<ItemResponse> updateItem(
-            @PathVariable("storeId") Long storeId,
             @PathVariable("itemId") Long itemId,
             @RequestPart("item") ItemUpdateRequest itemUpdateRequest,
             @RequestPart(value = "image", required = false) MultipartFile image,
@@ -89,22 +88,48 @@ public class ItemController {
                 itemUpdateRequest.price(),
                 imageUrl != null ? imageUrl : itemUpdateRequest.image(),
                 itemUpdateRequest.stock(),
-                itemUpdateRequest.description()
+                itemUpdateRequest.description(),
+                itemUpdateRequest.itemStatus()
         );
 
-        ItemResponse response = itemService.updateItem(storeId, itemId, customUserDetails.getUsername(), updatedRequest);
+        ItemResponse response = itemService.updateItem(itemId, customUserDetails.getUsername(), updatedRequest);
         return ResponseEntity.ok(response);
     }
 
 
 
-    @PatchMapping("{storeId}/items/{itemId}/deactivate")
+    @PatchMapping("/items/{itemId}/deactivate")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> deactivateItem(@PathVariable Long storeId,
-                                                       @PathVariable Long itemId,
+    public ResponseEntity<?> deactivateItem(@PathVariable Long itemId,
                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails
     ){
-        itemService.deactivateItem(storeId, itemId, customUserDetails.getUsername());
+        itemService.deactivateItem(itemId, customUserDetails.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getSalesOverview(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getSalesOverview(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/best-products")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getTop5BestSellingProducts(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getTop5BestSellingProducts(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/weekly-sales")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getWeeklySalesTrend(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        return itemService.getWeeklySalesTrend(customUserDetails.getUsername());
+    }
+
+    @GetMapping("/hourly-sales")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> getDailyHourlySales(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                 @RequestParam LocalDateTime localDateTime
+    ){
+        return itemService.getDailyHourlySales(customUserDetails.getUsername(),localDateTime);
     }
 }

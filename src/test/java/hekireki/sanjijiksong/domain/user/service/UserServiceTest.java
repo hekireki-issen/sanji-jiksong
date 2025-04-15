@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.user.service;
 
+import hekireki.sanjijiksong.domain.cart.repository.CartRepository;
 import hekireki.sanjijiksong.domain.user.dto.PasswordResetRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserRegisterRequest;
 import hekireki.sanjijiksong.domain.user.dto.UserResponse;
@@ -26,6 +27,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private CartRepository cartRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;

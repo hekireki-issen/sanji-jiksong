@@ -13,11 +13,13 @@ import hekireki.sanjijiksong.domain.user.entity.User;
 import hekireki.sanjijiksong.global.common.exception.ItemException;
 import hekireki.sanjijiksong.global.common.exception.OrderException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -29,46 +31,60 @@ public class OrderService {
     // 주문 생성
     @Transactional
     public OrderResponse createOrder(User user, OrderRequest request) {
-            Order order = new Order(user, OrderStatus.ORDERED);
+        log.info("주문 생성 요청 - userId={}, 요청 항목 수={}", user.getId(), request.orderLists().size());
+        Order order = new Order(user, OrderStatus.ORDERED);
 
-            for (OrderRequest.OrderListRequest itemReq : request.orderLists()) {
-                Item item = itemRepository.findById(itemReq.itemId())
-                        .orElseThrow(ItemException.ItemNotFoundException::new);
+        for (OrderRequest.OrderListRequest itemReq : request.orderLists()) {
+            Item item = itemRepository.findById(itemReq.itemId())
+                    .orElseThrow(ItemException.ItemNotFoundException::new);
 
-                if (item.getStock() < itemReq.count()) {
-                    throw new ItemException.ItemStockNotEnoughException();
-                }
-
-                item.decreaseStock(itemReq.count());
-
-                OrderList orderList = new OrderList(order, item, item.getStore(), itemReq.count());
-                order.addOrderItem(orderList);
+            if (item.getStock() < itemReq.count()) {
+                log.warn("재고 부족 - itemId={}, 요청 수량={}, 현재 재고={}", item.getId(), itemReq.count(), item.getStock());
+                throw new ItemException.ItemStockNotEnoughException();
             }
 
-            orderRepository.save(order);
-            return OrderResponse.from(order);
+            item.decreaseStock(itemReq.count());
+            log.info("재고 차감 - itemId={}, 차감 수량={}, 남은 재고={}", item.getId(), itemReq.count(), item.getStock());
+
+            OrderList orderList = new OrderList(order, item, item.getStore(), itemReq.count());
+            order.addOrderItem(orderList);
+        }
+
+        orderRepository.save(order);
+        log.info("주문 생성 완료 - userId={}, orderId={}", user.getId(), order.getId());
+
+        return OrderResponse.from(order);
     }
 
     // 주문 취소
     @Transactional
     public void cancelOrder(Long orderId, User user) {
+        log.info("주문 취소 요청 - userId={}, orderId={}", user.getId(), orderId);
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderException.OrderNotFoundException::new);
 
         order.cancel();
 
         for (OrderList orderList : order.getOrderLists()) {
-            orderList.getItem().addStock(orderList.getCount());
+            Item item = orderList.getItem();
+            item.addStock(orderList.getCount());
+            log.info("재고 복구 - itemId={}, 복구 수량={}, 현재 재고={}", item.getId(), orderList.getCount(), item.getStock());
         }
+
+        log.info("주문 취소 완료 - userId={}, orderId={}", user.getId(), orderId);
     }
 
     // 주문 수정
     @Transactional
     public OrderResponse updateOrderItems(OrderListUpdateRequest request, User user) {
+        log.info("주문 수정 요청 - userId={}, orderId={}", user.getId(), request.orderId());
+
         Order order = orderRepository.findById(request.orderId())
                 .orElseThrow(OrderException.OrderNotFoundException::new);
 
         if (!order.isUpdatable()) {
+            log.warn("수정 불가 상태 - orderId={}, status={}", order.getId(), order.getOrderStatus());
             throw new OrderException.OrderNotUpdatableException();
         }
 
@@ -89,13 +105,20 @@ public class OrderService {
             target.updateCount(update.count());
 
             order.updateOrderSummary(oldCount, oldPrice, target.getCount(), target.getCountPrice());
+
+            log.info("주문 항목 수정 - orderId={}, itemId={}, 기존 수량={}, 변경 수량={}, 현재 재고={}",
+                    order.getId(), item.getId(), oldCount, update.count(), item.getStock());
         }
+
+        log.info("주문 수정 완료 - userId={}, orderId={}", user.getId(), order.getId());
 
         return OrderResponse.from(order);
     }
 
     // 주문 상세 조회
     public OrderResponse getOrderDetail(Long orderId, User user) {
+        log.info("주문 상세 조회 요청 - userId={}, orderId={}", user.getId(), orderId);
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderException.OrderNotFoundException::new);
 
@@ -103,10 +126,11 @@ public class OrderService {
     }
 
     // 내 주문 목록 조회
-    public List<OrderResponse> getMyOrders(User user) {
-        return orderRepository.findAllByUser(user).stream()
-                .map(OrderResponse::from)
-                .toList();
+    public Page<OrderResponse> getMyOrders(User user, Pageable pageable) {
+        log.info("내 주문 목록 조회 요청 - userId={}, page={}, size={}", user.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        return orderRepository.findAllByUser(user, pageable)
+                .map(OrderResponse::from);
     }
 
 }

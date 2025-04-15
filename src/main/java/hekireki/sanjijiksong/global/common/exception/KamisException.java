@@ -29,4 +29,12 @@ public class KamisException extends RuntimeException {
             super(ErrorCode.KAMIS_API_UNAUTHENTICATED);
         }
     }
+
+    // ----------- 가격 조회 관련 예외 -------------
+    public static class PriceQueryPeriodTooLongException extends KamisException {
+        public PriceQueryPeriodTooLongException() {
+            super(ErrorCode.PriceQueryPeriodTooLong);
+        }
+    }
+
 }

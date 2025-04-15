@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Getter
-@Setter
 @Entity
 @Table(name = "`USERS`")
 
@@ -36,7 +35,10 @@ public class User extends BaseTimeEntity {
 
 	private Boolean active;
 
-	@OneToOne
+
+    //store 생성 시 id 추가
+    @Setter
+    @OneToOne
 	@JoinColumn(name = "store_id")
 	private Store store;
 

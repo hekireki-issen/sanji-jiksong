@@ -1,15 +1,21 @@
 package hekireki.sanjijiksong.domain.cart.entity;
 
-import hekireki.sanjijiksong.domain.item.entity.Item;
 import hekireki.sanjijiksong.domain.user.entity.User;
 import hekireki.sanjijiksong.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.ArrayList;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Getter
 @Setter

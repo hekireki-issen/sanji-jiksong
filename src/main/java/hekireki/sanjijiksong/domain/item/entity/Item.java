@@ -67,9 +67,9 @@ public class Item extends BaseTimeEntity {
 //        if (dto.active() != null && !this.active.equals(dto.active())) {
 //            this.active = dto.active();
 //        }
-//        if (dto.itemStatus() != null && !this.itemStatus.equals(dto.itemStatus())) {
-//            this.itemStatus = dto.itemStatus();
-//        }
+        if (dto.itemStatus() != null && !this.itemStatus.equals(dto.itemStatus())) {
+            this.itemStatus = dto.itemStatus();
+        }
     }
 
     public void deactivate() {
