@@ -1,5 +1,6 @@
 package hekireki.sanjijiksong.domain.openapi.controller;
 
+import hekireki.sanjijiksong.domain.openapi.api.OpenApi;
 import hekireki.sanjijiksong.domain.openapi.dto.ProductPriceResponse;
 import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
 import hekireki.sanjijiksong.domain.openapi.service.KamisPriceImportService;
@@ -7,7 +8,6 @@ import hekireki.sanjijiksong.domain.openapi.service.ProductPriceService;
 import hekireki.sanjijiksong.domain.openapi.service.OpenApiScheduler;
 import hekireki.sanjijiksong.domain.openapi.service.TrendingKeywordService;
 import hekireki.sanjijiksong.global.common.exception.KamisException;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/openapi")
 @Validated
-public class OpenAPIController {
+public class OpenAPIController implements OpenApi {
     private final KamisPriceImportService kamisPriceImportService;
     private final ProductPriceService productPriceService;
     private final OpenApiScheduler openApiScheduler;
