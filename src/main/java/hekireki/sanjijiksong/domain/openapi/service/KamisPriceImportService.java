@@ -4,7 +4,6 @@ package hekireki.sanjijiksong.domain.openapi.service;
 import hekireki.sanjijiksong.domain.openapi.Repository.PriceDailyRepository;
 import hekireki.sanjijiksong.domain.openapi.dto.kamisDailyPrice.KamisDailyResponse;
 import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
-import hekireki.sanjijiksong.global.common.exception.KamisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -30,6 +30,7 @@ public record KamisDailyResponse(
             List<Item> item
     ) {}
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public record Item(
             @JsonProperty("item_name") String itemName,
             @JsonProperty("item_code") String itemCode,
