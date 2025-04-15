@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
@@ -62,14 +62,16 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                         .requestMatchers(
                                 "/",
+                                "/error",
                                 "/login",
                                 "/join",
                                 "/reissue",
                                 "/h2-console/**",
-                                "/api/v1/register"
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/v1/register",
+                                "/api/v1/openapi/**"
                         ).permitAll() //해당 url경로는 인증 필요 없음
-                        .requestMatchers("/api/v1/admin").hasRole(Role.ADMIN.name())// ADMIN만 접근 가능
-                        .requestMatchers("/api/openapi/**").permitAll()
 //                .requestMatchers().hasRole(Role.BUYER.name())//Buyer만 접근 가능
                         .requestMatchers(HttpMethod.GET, "/api/v1/stores/*").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/stores/**").hasRole("SELLER")

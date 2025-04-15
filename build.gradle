@@ -46,7 +46,7 @@ dependencies {
     implementation 'io.github.cdimascio:dotenv-java:2.2.0'
 
     // Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
 
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -59,6 +59,9 @@ dependencies {
     //AWS
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.1.1'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.767'
+
+    // crawling
+    implementation("org.seleniumhq.selenium:selenium-java:4.31.0")
 }
 
 tasks.named('test') {
