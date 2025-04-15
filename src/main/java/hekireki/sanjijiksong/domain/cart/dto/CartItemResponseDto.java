@@ -12,7 +12,6 @@ public record CartItemResponseDto(
         int totalPrice,
         String itemStatus
 ) {
- dev
     public static CartItemResponseDto from(CartItem cartItem) {
         return new CartItemResponseDto(
                 cartItem.getItem().getId(),
