@@ -1,12 +1,12 @@
-package hekireki.sanjijiksong;
+package hekireki.sanjijiksong.domain.cart.service;
 
 import hekireki.sanjijiksong.domain.cart.dto.CartItemResponseDto;
 import hekireki.sanjijiksong.domain.cart.entity.Cart;
-import hekireki.sanjijiksong.domain.cart.service.CartItemService;
 import hekireki.sanjijiksong.domain.cart.repository.CartItemRepository;
 import hekireki.sanjijiksong.domain.cart.repository.CartRepository;
 import hekireki.sanjijiksong.domain.item.entity.Item;
 import hekireki.sanjijiksong.domain.item.repository.ItemRepository;
+import hekireki.sanjijiksong.domain.item.entity.ItemStatus;
 import java.util.List;
 import hekireki.sanjijiksong.domain.cart.entity.CartItem;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,4 +115,58 @@ class CartItemServiceTest {
         verify(cartItem).updateQuantity(newQuantity);
         verify(cartItemRepository, never()).delete(any());
     }
+
+    @Test
+    void 수량_업데이트시_카트아이템이_없으면_예외() {
+        Long cartItemId = 1L;
+        when(cartItemRepository.findById(cartItemId)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                cartItemService.updateCartItemQuantity(cartItemId, 5)
+        );
+
+        assertEquals("장바구니 상품을 찾을 수 없습니다.", exception.getMessage());
+    }
+
+    @Test
+    void 장바구니_아이템_제거_성공() {
+        // given
+        Long cartItemId = 1L;
+        CartItem cartItem = mock(CartItem.class);
+
+        when(cartItemRepository.findById(cartItemId)).thenReturn(Optional.of(cartItem));
+
+        // when
+        cartItemService.removeCartItem(cartItemId);
+
+        // then
+        verify(cartItemRepository).delete(cartItem);
+    }
+
+    @Test
+    void 장바구니_아이템_리스트_조회_성공() {
+        // given
+        Long cartId = 1L;
+        Cart cart = new Cart();
+        Item item = Item.builder()
+                .id(1L)
+                .name("테스트상품")
+                .price(2000)
+                .image("image.jpg")
+                .itemStatus(ItemStatus.ONSALE)
+                .stock(10)
+                .build();
+        CartItem cartItem = CartItem.create(cart, item, 2);
+        when(cartItemRepository.findByCartId(cartId)).thenReturn(List.of(cartItem));
+
+        // when
+        List<CartItemResponseDto> result = cartItemService.getCartItems(cartId);
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals("테스트상품", result.get(0).itemName());
+        assertEquals(2, result.get(0).quantity());
+    }
+
+
 }
