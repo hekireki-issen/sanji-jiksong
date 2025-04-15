@@ -191,9 +191,6 @@ public class ItemService {
             throw new StoreException(ErrorCode.STORE_NOT_FOUND);
         }
 
-        if (!userStore.getId().equals(user.getId())) {
-            throw new StoreException(ErrorCode.UNAUTHORIZED_STORE_OWNER);
-        }
         return userStore;
     }
 

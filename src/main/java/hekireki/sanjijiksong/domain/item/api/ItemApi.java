@@ -44,10 +44,9 @@ public interface ItemApi{
                                 }
                                 """)))
         })
-        @PostMapping(value = "/{storeId}/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @PostMapping(value = "/items", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         @PreAuthorize("hasRole('SELLER')")
-        ResponseEntity<ItemResponse> createItem(@PathVariable("storeId") Long storeId,
-                                                @RequestPart("item") ItemCreateRequest request,
+        ResponseEntity<ItemResponse> createItem(@RequestPart("item") ItemCreateRequest request,
                                                 @RequestPart("image") MultipartFile image,
                                                 @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException;
 
@@ -72,10 +71,9 @@ public interface ItemApi{
                                 ]
                                 """)))
         })
-        @GetMapping("/{storeId}/items")
+        @GetMapping("/items")
         @PreAuthorize("hasRole('SELLER')")
-        ResponseEntity<List<ItemResponse>> getMyItems(@PathVariable Long storeId,
-                                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
+        ResponseEntity<List<ItemResponse>> getMyItems(@AuthenticationPrincipal CustomUserDetails customUserDetails);
 
     @Operation(summary = "상품 수정", description = "SELLER가 상품 정보를 수정합니다.")
     @ApiResponses({
@@ -96,10 +94,9 @@ public interface ItemApi{
                                 }
                                 """)))
     })
-    @PatchMapping(value = "/{storeId}/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/items/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('SELLER')")
-    ResponseEntity<ItemResponse> updateItem(@PathVariable("storeId") Long storeId,
-                                            @PathVariable("itemId") Long itemId,
+    ResponseEntity<ItemResponse> updateItem(@PathVariable("itemId") Long itemId,
                                             @RequestPart("item") ItemUpdateRequest itemUpdateRequest,
                                             @RequestPart(value = "image", required = false) MultipartFile image,
                                             @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException;
@@ -116,10 +113,9 @@ public interface ItemApi{
                                 }
                                 """)))
     })
-    @PatchMapping("{storeId}/items/{itemId}/deactivate")
+    @PatchMapping("/items/{itemId}/deactivate")
     @PreAuthorize("hasRole('SELLER')")
-    ResponseEntity<?> deactivateItem(@PathVariable Long storeId,
-                                     @PathVariable Long itemId,
+    ResponseEntity<?> deactivateItem(@PathVariable Long itemId,
                                      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
         @Operation(summary = "상품 상세 조회", description = "특정 상품의 상세 정보를 조회합니다.")
