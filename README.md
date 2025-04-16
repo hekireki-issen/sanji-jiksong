@@ -49,69 +49,91 @@
 
 ![image](https://github.com/user-attachments/assets/0499c1f2-6fcc-4f91-8121-b1d0d6d5c2bd)
 
+### 요구사항 정의서
+
+![image](https://github.com/user-attachments/assets/9286c14a-0796-448a-9274-f77c1ec37507)
+
+https://docs.google.com/spreadsheets/d/1H1e962uaFwESFsv0syk0m6vaHKlMy7VjK5d2sXw-Bag/edit?usp=sharing
+
 ### ERD
 
 ![image](https://github.com/user-attachments/assets/01f83e0f-f734-4434-8252-7b012bf5fc8a)
 
+
 ## 🔧 주요기능
+### Auth
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 로그인           | ```POST``` | ```/login```    |
+| 엑세스 토큰 재발급 | ```POST``` | ```/refresh``` |
+| 로그아웃         | ```GET``` | ```/logout```    |
 
-<details>
-<summary>User</summary>
-<div markdown="1">
-  
-BUYER, SELLER  
-- 회원가입, 탈퇴, 복구, 비밀번호 재설정
+### User
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 회원가입                 | ```POST``` | ```/api/v1/register```                |
+| 회원탈퇴                 | ```PATCH``` | ```/api/v1/users/{usersId}```        |
+| 비밀번호 재설정           | ```POST``` | ```/api/v1/users/{userId}/password``` |
+| 회원 복구                 | ```POST``` | ```/api/v1/users/{userId}/restore``` |
+| 프로필  조회(유저 정보 조회) | ```GET``` | ```/api/v1/me```                    |
 
-ADMIN  
-- 모든 유저 조회, 탈퇴 처리
+### Admin
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 모든 유저 조회 | ```GET``` | ```/api/v1/admin/users```                   |
+| 유저 탈퇴 처리 | ```PATCH``` | ```/api/v1/admin/users/{id}/deactivate``` |
 
-</div>
-</details>
+### Search
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 상품 검색   | ```GET``` | ```/api/v1/items/search```        |
+| 가게 검색   | ```GET``` | ```/api/v1/stores/search```       |
+| 카테고리 검색 | ```GET``` | ```/api/v1/categories/search``` |
 
-<details>
-<summary>Store</summary>
-<div markdown="1">
+### Order
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 상품 주문 요청       | ```POST```  | ```/api/v1/orders```                          |
+| 사용자 주문 목록 조회 | ```GET```   | ```/api/v1/orders```                         |
+| 주문 상세 조회       | ```GET```   | ```/api/v1/orders/{orderId}```                |
+| 주문 취소            | ```PATCH``` | ```/api/v1/orders/{orderId}/cancel```         |
+| 주문 수정            | ```PATCH``` | ```/api/v1/orders/{orderId}/items/{itemId}``` |
 
-- 가게 도메인 
-- 가게 등록, 조회, 수정, 삭제
-- S3 이미지 업로드
+### Store
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 가게등록 | ```POST```  | ```/api/v1/stores```                      |
+| 가게조회 | ```GET```   | ```/api/v1/stores/{storeId}```            |
+| 가게수정 | ```PATCH```   | ```/api/v1/stores/{storeId}```          |
+| 가게삭제 | ```PATCH``` | ```/api/v1/stores/{storeId}/deactivate``` |
 
-</div>
-</details>
+### Item
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 판매 상품 등록      | ```POST``` | ```/api/v1/stores/items```                      |
+| 판매 상품 목록 조회 | ```GET```   | ```//api/v1/stores/items```                    |
+| 특정 판매 상품 조회 | ```GET```   | ```/api/v1/stores/{storeId}/items/{itemId}```  |
+| 판매 상품 수정      | ```PATCH``` | ```/api/v1/stores/items/{itemId}```            |
+| 판매 상품 삭제      | ```PATCH``` | ```/api/v1/stores/items/{itemId}/deactivate``` |
+| 판매 통계           | ```GET```  | ```/api/v1/stores/statistics```                |
+| 판매 top5          | ```GET```   | ```/api/v1/stores/best-products```             |
+| 주간 판매 추이      | ```GET```   | ```/api/v1/stores/weekly-sales```              |
+| 시간별 판매 추이    | ```GET```   | ```/api/v1/stores/hourly-sales```              |
 
-<details>
-<summary>Item</summary>
-<div markdown="1">
+### Cart
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| 장바구니 상품 등록 | ```POST```  | ```/api/v1/carts/{productId}```  |
+| 장바구니 상품 조회 | ```GET```   | ```/api/v1/carts/{productId}```  |
+| 장바구니 상품 수정 | ```PATCH```  | ```/api/v1/carts/{productId}``` |
+| 장바구니 상품 삭제 | ```DELETE``` | ```/api/v1/carts/{productId}``` |
 
-- 상품 등록, 조회, 수정, 삭제
-- 상품명, 카테고리 검색
-- 품목 매출 현황, Top5 매출, 주간 매출 추이, 시간별 매출 추이 그래프를 통한 판매통계 제공
+### OpenApi
+| 기능          | HTTP 메소드 | URL                      |
+|---------------|-------------|--------------------------|
+| kamis 가격 정보 저장                | ```GET``` | ```/api/v1/openapi/kamis/prices```    |
+| 특정 날짜 범위에 대한 가격 정보 저장 | ```GET``` | ```/api/v1/openapi/kamis/allprices``` |
+| 상품 가격 정보 조회                 | ```GET``` | ```/api/v1/openapi/getPrices```       |
+| 인기 검색어 크롤링                  | ```GET``` | ```/api/v1/openapi/naver/crawling```  |
+| 인기 검색어 가격 조회               | ```GET``` | ```/api/v1/openapi/naver/trending```  |
 
-</div>
-</details>
-<details>
-<summary>Cart</summary>
-<div markdown="1">
-
-- 장바구니 생성, 조회, 수정, 삭제
-
-</div>
-</details>
-<details>
-<summary>Order</summary>
-<div markdown="1">
-
-- 주문 생성, 조회, 수정, 삭제
-
-</div>
-</details>
-<details>
-<summary>OpenApi</summary>
-<div markdown="1">
-
-- 스프링 스케줄러를 통한 데이터 저장
-- KAMIS OPENAPI 기반 실시간 유통 가격 정보 및 추이 제공
-- 네이버 트랜드랩 인기검색어 크롤링을 활용한 인기품목 기반 가격 정보 제공
-
-</div>
-</details>
