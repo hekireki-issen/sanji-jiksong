@@ -5,7 +5,7 @@ import hekireki.sanjijiksong.domain.openapi.Repository.TrendingKeywordRepository
 import hekireki.sanjijiksong.domain.openapi.dto.TrendingKeywordPrice;
 import hekireki.sanjijiksong.domain.openapi.entity.PriceDaily;
 import hekireki.sanjijiksong.domain.openapi.service.webdriver.WebDriverProvider;
-import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
+import hekireki.sanjijiksong.domain.openapi.entity.TrendingKeyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;

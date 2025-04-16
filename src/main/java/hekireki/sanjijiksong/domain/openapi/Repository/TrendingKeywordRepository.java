@@ -1,6 +1,6 @@
 package hekireki.sanjijiksong.domain.openapi.Repository;
 
-import hekireki.sanjijiksong.domain.price.entity.TrendingKeyword;
+import hekireki.sanjijiksong.domain.openapi.entity.TrendingKeyword;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
